@@ -15,4 +15,11 @@ export const useBoardStore = create((set) => ({
         },
       ],
     })),
+
+  updateNotePosition: (id, x, y) =>
+    set((state) => ({
+      notes: state.notes.map((note) =>
+        note.id === id ? { ...note, x, y } : note
+      ),
+    })),
 }));
