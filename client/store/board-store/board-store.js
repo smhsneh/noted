@@ -3,6 +3,9 @@ import { create } from "zustand";
 export const useBoardStore = create((set) => ({
   notes: [],
 
+  cameraX: 0,
+  cameraY: 0,
+
   addNote: () =>
     set((state) => ({
       notes: [
@@ -22,4 +25,6 @@ export const useBoardStore = create((set) => ({
         note.id === id ? { ...note, x, y } : note
       ),
     })),
+
+  setCamera: (x, y) => set({ cameraX: x, cameraY: y }),
 }));
