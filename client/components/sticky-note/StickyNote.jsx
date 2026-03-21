@@ -4,15 +4,9 @@ import { useBoardStore } from "../../store/board-store/board-store";
 import { useState } from "react";
 
 export default function StickyNote({ note }) {
-  const updateNotePosition = useBoardStore(
-    (state) => state.updateNotePosition
-  );
-  const updateNoteText = useBoardStore(
-    (state) => state.updateNoteText
-  );
-  const updateNoteColor = useBoardStore(
-    (state) => state.updateNoteColor
-  );
+  const updateNotePosition = useBoardStore((state) => state.updateNotePosition);
+  const updateNoteText = useBoardStore((state) => state.updateNoteText);
+  const updateNoteColor = useBoardStore((state) => state.updateNoteColor);
 
   const [editing, setEditing] = useState(false);
 
@@ -21,11 +15,7 @@ export default function StickyNote({ note }) {
     const offsetY = e.clientY - note.y;
 
     const handleMouseMove = (e) => {
-      updateNotePosition(
-        note.id,
-        e.clientX - offsetX,
-        e.clientY - offsetY
-      );
+      updateNotePosition(note.id, e.clientX - offsetX, e.clientY - offsetY);
     };
 
     const handleMouseUp = () => {
@@ -45,24 +35,58 @@ export default function StickyNote({ note }) {
         position: "absolute",
         left: note.x,
         top: note.y,
-        width: "180px",
-        height: "180px",
-        borderRadius: "24px",
+        width: "200px",
+        height: "220px",
+        borderRadius: "20px",
         background: "white",
-        padding: "12px",
-        boxShadow: "0 6px 18px rgba(0,0,0,0.12)",
+        padding: "50px 10px 10px 10px",
+        borderRadius: "20px",
+        boxShadow: `
+  0 0 0 2px white,
+  6px 6px 16px rgba(0,0,0,0.08),
+  -4px -4px 10px rgba(255,255,255,0.7)
+`,
       }}
     >
+      {/* color picker (top right, circular) */}
+      <div
+        style={{
+          position: "absolute",
+          top: "10px",
+          right: "12px",
+          width: "20px",
+          height: "20px",
+          borderRadius: "50%",
+          background: note.color || "#fde68a",
+          boxShadow: "0 0 0 2px white, 0 2px 6px rgba(0,0,0,0.15)",
+          cursor: "pointer",
+        }}
+      >
+        <input
+          type="color"
+          value={note.color || "#fde68a"}
+          onChange={(e) => updateNoteColor(note.id, e.target.value)}
+          style={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0,
+            cursor: "pointer",
+          }}
+        />
+      </div>
+
+      {/* inner colored note */}
       <div
         style={{
           width: "100%",
           height: "100%",
-          borderRadius: "16px",
-          padding: "12px",
+          borderRadius: "12px",
+          padding: "14px",
+          background: note.color || "#fde68a",
+          boxShadow: "inset 0 2px 6px rgba(0,0,0,0.05)",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
-          backgroundColor: note.color || "#fde68a",
+          justifyContent: "flex-start",
         }}
       >
         {editing ? (
@@ -79,26 +103,19 @@ export default function StickyNote({ note }) {
               border: "none",
               resize: "none",
               fontSize: "14px",
+              fontFamily: "Inter",
             }}
           />
         ) : (
-          <div style={{ fontSize: "14px" }}>{note.text}</div>
-        )}
-
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <input
-            type="color"
-            value={note.color || "#fde68a"}
-            onChange={(e) => updateNoteColor(note.id, e.target.value)}
+          <div
             style={{
-              width: "20px",
-              height: "20px",
-              border: "none",
-              background: "transparent",
-              cursor: "pointer",
+              fontSize: "14px",
+              fontWeight: "500",
             }}
-          />
-        </div>
+          >
+            {note.text}
+          </div>
+        )}
       </div>
     </div>
   );
