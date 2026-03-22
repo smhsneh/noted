@@ -6,19 +6,77 @@ import StickyNote from "../sticky-note/StickyNote";
 export default function Canvas() {
   const notes = useBoardStore((state) => state.notes);
 
+  const cameraX = useBoardStore((state) => state.cameraX);
+  const cameraY = useBoardStore((state) => state.cameraY);
+  const zoom = useBoardStore((state) => state.zoom);
+
+  const setCamera = useBoardStore((state) => state.setCamera);
+  const setZoom = useBoardStore((state) => state.setZoom);
+
+  // panning
+  const handleMouseDown = (e) => {
+    // prevent dragging when clicking notes
+    if (e.target !== e.currentTarget) return;
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+
+    const initialX = cameraX;
+    const initialY = cameraY;
+
+    const handleMouseMove = (e) => {
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      setCamera(initialX - dx / zoom, initialY - dy / zoom);
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
+  // zoom
+  const handleWheel = (e) => {
+    e.preventDefault();
+
+    let newZoom = zoom - e.deltaY * 0.001;
+    newZoom = Math.max(0.3, Math.min(3, newZoom));
+
+    setZoom(newZoom);
+  };
+
   return (
     <div
+      onMouseDown={handleMouseDown}
+      onWheel={handleWheel}
       style={{
         width: "100%",
         height: "100%",
         position: "absolute",
         top: 0,
         left: 0,
+        overflow: "hidden",
       }}
     >
-      {notes.map((note) => (
-        <StickyNote key={note.id} note={note} />
-      ))}
+      {/* world */}
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          position: "relative",
+          transform: `scale(${zoom}) translate(${-cameraX}px, ${-cameraY}px)`,
+          transformOrigin: "0 0",
+        }}
+      >
+        {notes.map((note) => (
+          <StickyNote key={note.id} note={note} />
+        ))}
+      </div>
     </div>
   );
 }

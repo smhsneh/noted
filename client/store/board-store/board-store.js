@@ -5,23 +5,24 @@ export const useBoardStore = create((set) => ({
 
   cameraX: 0,
   cameraY: 0,
-
   zoom: 1,
-  setZoom: (zoom) => set({ zoom }),
+
+  setCamera: (x, y) => set({ cameraX: x, cameraY: y }),
+  setZoom: (z) => set({ zoom: z }),
 
   addNote: () =>
-  set((state) => ({
-    notes: [
-      ...state.notes,
-      {
-        id: Date.now(),
-        text: "new note",
-        x: 200,
-        y: 200,
-        color: "#fde68a",
-      },
-    ],
-  })),
+    set((state) => ({
+      notes: [
+        ...state.notes,
+        {
+          id: Date.now(),
+          text: "new note",
+          x: 200,
+          y: 200,
+          color: "#fde68a",
+        },
+      ],
+    })),
 
   updateNotePosition: (id, x, y) =>
     set((state) => ({
