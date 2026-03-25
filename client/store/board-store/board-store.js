@@ -16,7 +16,9 @@ export const useBoardStore = create((set) => ({
         ...state.notes,
         {
           id: Date.now(),
+          type: "text",
           text: "new note",
+          todos: [],
           x: 200,
           y: 200,
           width: 200,
@@ -29,21 +31,21 @@ export const useBoardStore = create((set) => ({
   updateNotePosition: (id, x, y) =>
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, x, y } : note
+        note.id === id ? { ...note, x, y } : note,
       ),
     })),
 
   updateNoteText: (id, text) =>
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, text } : note
+        note.id === id ? { ...note, text } : note,
       ),
     })),
 
   updateNoteColor: (id, color) =>
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, color } : note
+        note.id === id ? { ...note, color } : note,
       ),
     })),
 
@@ -52,10 +54,48 @@ export const useBoardStore = create((set) => ({
       notes: state.notes.filter((note) => note.id !== id),
     })),
 
+  addTodo: (id, text) =>
+    set((state) => ({
+      notes: state.notes.map((note) =>
+        note.id === id
+          ? {
+              ...note,
+              todos: [...note.todos, { text, done: false }],
+            }
+          : note,
+      ),
+    })),
+
+  toggleTodo: (id, index) =>
+    set((state) => ({
+      notes: state.notes.map((note) =>
+        note.id === id
+          ? {
+              ...note,
+              todos: note.todos.map((todo, i) =>
+                i === index ? { ...todo, done: !todo.done } : todo,
+              ),
+            }
+          : note,
+      ),
+    })),
+
+  toggleNoteType: (id) =>
+    set((state) => ({
+      notes: state.notes.map((note) =>
+        note.id === id
+          ? {
+              ...note,
+              type: note.type === "text" ? "todo" : "text",
+            }
+          : note,
+      ),
+    })),
+
   updateNoteSize: (id, width, height) =>
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, width, height } : note
+        note.id === id ? { ...note, width, height } : note,
       ),
     })),
 }));
