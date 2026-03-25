@@ -19,6 +19,8 @@ export const useBoardStore = create((set) => ({
           text: "new note",
           x: 200,
           y: 200,
+          width: 200,
+          height: 220,
           color: "#fde68a",
         },
       ],
@@ -27,28 +29,33 @@ export const useBoardStore = create((set) => ({
   updateNotePosition: (id, x, y) =>
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, x, y } : note,
+        note.id === id ? { ...note, x, y } : note
       ),
     })),
 
   updateNoteText: (id, text) =>
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, text } : note,
+        note.id === id ? { ...note, text } : note
       ),
     })),
 
   updateNoteColor: (id, color) =>
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, color } : note,
+        note.id === id ? { ...note, color } : note
       ),
     })),
 
   deleteNote: (id) =>
-  set((state) => ({
-    notes: state.notes.filter((note) => note.id !== id),
-  })),
+    set((state) => ({
+      notes: state.notes.filter((note) => note.id !== id),
+    })),
 
-  setCamera: (x, y) => set({ cameraX: x, cameraY: y }),
+  updateNoteSize: (id, width, height) =>
+    set((state) => ({
+      notes: state.notes.map((note) =>
+        note.id === id ? { ...note, width, height } : note
+      ),
+    })),
 }));

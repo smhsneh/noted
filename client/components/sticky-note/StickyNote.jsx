@@ -4,10 +4,21 @@ import { useBoardStore } from "../../store/board-store/board-store";
 import { useState } from "react";
 
 export default function StickyNote({ note }) {
-  const updateNotePosition = useBoardStore((state) => state.updateNotePosition);
-  const updateNoteText = useBoardStore((state) => state.updateNoteText);
-  const updateNoteColor = useBoardStore((state) => state.updateNoteColor);
-  const deleteNote = useBoardStore((state) => state.deleteNote);
+  const updateNotePosition = useBoardStore(
+    (state) => state.updateNotePosition
+  );
+  const updateNoteText = useBoardStore(
+    (state) => state.updateNoteText
+  );
+  const updateNoteColor = useBoardStore(
+    (state) => state.updateNoteColor
+  );
+  const deleteNote = useBoardStore(
+    (state) => state.deleteNote
+  );
+  const updateNoteSize = useBoardStore(
+    (state) => state.updateNoteSize
+  );
 
   const [editing, setEditing] = useState(false);
 
@@ -16,7 +27,36 @@ export default function StickyNote({ note }) {
     const offsetY = e.clientY - note.y;
 
     const handleMouseMove = (e) => {
-      updateNotePosition(note.id, e.clientX - offsetX, e.clientY - offsetY);
+      updateNotePosition(
+        note.id,
+        e.clientX - offsetX,
+        e.clientY - offsetY
+      );
+    };
+
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleResizeMouseDown = (e) => {
+    e.stopPropagation();
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+
+    const startWidth = note.width || 200;
+    const startHeight = note.height || 220;
+
+    const handleMouseMove = (e) => {
+      const newWidth = startWidth + (e.clientX - startX);
+      const newHeight = startHeight + (e.clientY - startY);
+
+      updateNoteSize(note.id, newWidth, newHeight);
     };
 
     const handleMouseUp = () => {
@@ -42,20 +82,19 @@ export default function StickyNote({ note }) {
         position: "absolute",
         left: note.x,
         top: note.y,
-        width: "200px",
-        height: "220px",
+        width: note.width || 200,
+        height: note.height || 220,
         borderRadius: "20px",
         background: "white",
         padding: "50px 10px 10px 10px",
-        borderRadius: "20px",
         boxShadow: `
-  0 0 0 2px white,
-  6px 6px 16px rgba(0,0,0,0.08),
-  -4px -4px 10px rgba(255,255,255,0.7)
-`,
+          0 0 0 2px white,
+          6px 6px 16px rgba(0,0,0,0.08),
+          -4px -4px 10px rgba(255,255,255,0.7)
+        `,
       }}
     >
-      {/* color picker (top right, circular) */}
+      {/* color picker */}
       <div
         style={{
           position: "absolute",
@@ -82,7 +121,7 @@ export default function StickyNote({ note }) {
         />
       </div>
 
-      {/* inner colored note */}
+      {/* content */}
       <div
         style={{
           width: "100%",
@@ -91,9 +130,6 @@ export default function StickyNote({ note }) {
           padding: "14px",
           background: note.color || "#fde68a",
           boxShadow: "inset 0 2px 6px rgba(0,0,0,0.05)",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-start",
         }}
       >
         {editing ? (
@@ -111,19 +147,32 @@ export default function StickyNote({ note }) {
               resize: "none",
               fontSize: "14px",
               fontFamily: "Inter",
+              width: "100%",
+              height: "100%",
             }}
           />
         ) : (
-          <div
-            style={{
-              fontSize: "14px",
-              fontWeight: "500",
-            }}
-          >
+          <div style={{ fontSize: "14px", fontWeight: "500" }}>
             {note.text}
           </div>
         )}
       </div>
+
+      {/* resize handle */}
+      <div
+        onMouseDown={handleResizeMouseDown}
+        style={{
+          position: "absolute",
+          bottom: "6px",
+          right: "6px",
+          width: "16px",
+          height: "16px",
+          borderRight: "3px solid rgba(0,0,0,0.4)",
+          borderBottom: "3px solid rgba(0,0,0,0.4)",
+          borderRadius: "0 0 15px 0 ",
+          cursor: "nwse-resize",
+        }}
+      />
     </div>
   );
 }
