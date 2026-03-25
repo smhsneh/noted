@@ -7,6 +7,7 @@ export default function StickyNote({ note }) {
   const updateNotePosition = useBoardStore((state) => state.updateNotePosition);
   const updateNoteText = useBoardStore((state) => state.updateNoteText);
   const updateNoteColor = useBoardStore((state) => state.updateNoteColor);
+  const deleteNote = useBoardStore((state) => state.deleteNote);
 
   const [editing, setEditing] = useState(false);
 
@@ -29,7 +30,13 @@ export default function StickyNote({ note }) {
 
   return (
     <div
-      onMouseDown={handleMouseDown}
+      onMouseDown={(e) => {
+        if (e.shiftKey) {
+          deleteNote(note.id);
+          return;
+        }
+        handleMouseDown(e);
+      }}
       onDoubleClick={() => setEditing(true)}
       style={{
         position: "absolute",
