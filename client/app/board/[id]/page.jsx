@@ -5,6 +5,7 @@ import { useBoardStore } from "../../../store/board-store/board-store";
 
 export default function BoardPage() {
   const addNote = useBoardStore((state) => state.addNote);
+  const addSticker = useBoardStore((state) => state.addSticker);
 
   return (
     <div
@@ -15,7 +16,6 @@ export default function BoardPage() {
         overflow: "hidden",
       }}
     >
-
       {/* hdr */}
       <div
         style={{
@@ -72,15 +72,21 @@ export default function BoardPage() {
             boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
           }}
         >
-          <button onClick={addNote} className="tool-btn">note</button>
+          <button onClick={addNote} className="tool-btn">
+            note
+          </button>
           <button className="tool-btn">color</button>
-          <button className="tool-btn">stickers</button>
+          <button
+            className="tool-btn"
+            onClick={() => addSticker("/stickers/star.png")}
+          >
+            stickers
+          </button>
         </div>
       </div>
 
       {/* cv */}
       <Canvas />
-
     </div>
   );
 }

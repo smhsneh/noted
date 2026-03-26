@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 export const useBoardStore = create((set) => ({
   notes: [],
+  stickers: [],
 
   cameraX: 0,
   cameraY: 0,
@@ -96,6 +97,33 @@ export const useBoardStore = create((set) => ({
     set((state) => ({
       notes: state.notes.map((note) =>
         note.id === id ? { ...note, width, height } : note,
+      ),
+    })),
+
+  addSticker: (src) =>
+    set((state) => ({
+      stickers: [
+        ...state.stickers,
+        {
+          id: Date.now(),
+          x: 300,
+          y: 200,
+          width: 100,
+          height: 100,
+          src,
+        },
+      ],
+    })),
+
+  updateStickerPosition: (id, x, y) =>
+    set((state) => ({
+      stickers: state.stickers.map((s) => (s.id === id ? { ...s, x, y } : s)),
+    })),
+
+  updateStickerSize: (id, width, height) =>
+    set((state) => ({
+      stickers: state.stickers.map((s) =>
+        s.id === id ? { ...s, width, height } : s,
       ),
     })),
 }));

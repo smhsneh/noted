@@ -2,9 +2,11 @@
 
 import { useBoardStore } from "../../store/board-store/board-store";
 import StickyNote from "../sticky-note/StickyNote";
+import Sticker from "../sticker/Sticker";
 
 export default function Canvas() {
   const notes = useBoardStore((state) => state.notes);
+  const stickers = useBoardStore((state) => state.stickers);
 
   const cameraX = useBoardStore((state) => state.cameraX);
   const cameraY = useBoardStore((state) => state.cameraY);
@@ -15,7 +17,6 @@ export default function Canvas() {
 
   // panning
   const handleMouseDown = (e) => {
-    // prevent dragging when clicking notes
     if (e.target !== e.currentTarget) return;
 
     const startX = e.clientX;
@@ -75,6 +76,10 @@ export default function Canvas() {
       >
         {notes.map((note) => (
           <StickyNote key={note.id} note={note} />
+        ))}
+
+        {stickers.map((sticker) => (
+          <Sticker key={sticker.id} sticker={sticker} />
         ))}
       </div>
     </div>
