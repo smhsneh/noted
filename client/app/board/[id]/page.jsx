@@ -28,14 +28,14 @@ export default function BoardPage() {
         }}
       >
         <h1
-          style={{
-            fontSize: "48px",
-            color: "#381932",
-            fontFamily: "'Xanh Mono', monospace",
-          }}
-        >
-          Noted.
-        </h1>
+  className="dynapuff"
+  style={{
+    fontSize: "48px",
+    color: "#381932",
+  }}
+>
+  Noted.
+</h1>
       </div>
 
       {/* usr */}
@@ -105,6 +105,12 @@ export default function BoardPage() {
                 "teddy",
                 "warning",
                 "work",
+                "pin",
+                "clip",
+                "check",
+                "ribbon",
+                "calendar",
+                "target",
               ].map((name) => (
                 <img
                   key={name}
