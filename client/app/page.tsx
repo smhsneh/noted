@@ -42,14 +42,14 @@ export default function Home() {
             <button
               onClick={() => router.push("/board/1")}
               className="
-                px-7 py-3 rounded-full
-                font-bold text-gray-700 text-base
-                flex items-center gap-2
-                hover:bg-gray-50 transition
-              "
-              style={{
-                background: "linear-gradient(to right, white, #f3f3f3)",
-              }}
+    px-7 py-3 rounded-full
+    font-semibold
+    border border-gray-300
+    text-gray-700
+    bg-white
+    transition-all duration-200
+    hover:bg-black hover:text-white hover:border-black
+  "
             >
               note now →
             </button>

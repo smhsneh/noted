@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useBoardStore } from "../../store/board-store/board-store";
 
 export default function Sticker({ sticker }) {
@@ -14,14 +14,29 @@ export default function Sticker({ sticker }) {
     (state) => state.deleteSticker
   );
 
-  const [menu, setMenu] = useState(null); // {x, y}
+  const [menu, setMenu] = useState(null);
 
-  // 🔹 DRAG
+  useEffect(() => {
+    if (!menu) return;
+
+    const closeMenu = () => setMenu(null);
+
+    window.addEventListener("mousedown", closeMenu);
+    window.addEventListener("scroll", closeMenu);
+    window.addEventListener("contextmenu", closeMenu);
+
+    return () => {
+      window.removeEventListener("mousedown", closeMenu);
+      window.removeEventListener("scroll", closeMenu);
+      window.removeEventListener("contextmenu", closeMenu);
+    };
+  }, [menu]);
+
   const handleMouseDown = (e) => {
     const offsetX = e.clientX - sticker.x;
     const offsetY = e.clientY - sticker.y;
 
-    const handleMove = (e) => {
+    const move = (e) => {
       updateStickerPosition(
         sticker.id,
         e.clientX - offsetX,
@@ -29,16 +44,15 @@ export default function Sticker({ sticker }) {
       );
     };
 
-    const handleUp = () => {
-      window.removeEventListener("mousemove", handleMove);
-      window.removeEventListener("mouseup", handleUp);
+    const up = () => {
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", up);
     };
 
-    window.addEventListener("mousemove", handleMove);
-    window.addEventListener("mouseup", handleUp);
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", up);
   };
 
-  // 🔹 RESIZE
   const handleResize = (e) => {
     e.stopPropagation();
 
@@ -65,13 +79,11 @@ export default function Sticker({ sticker }) {
     window.addEventListener("mouseup", up);
   };
 
-
   const handleContextMenu = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     setMenu({ x: e.clientX, y: e.clientY });
   };
-
-  const closeMenu = () => setMenu(null);
 
   return (
     <>
@@ -98,6 +110,7 @@ export default function Sticker({ sticker }) {
           }}
         />
 
+        {/* resize */}
         <div
           onMouseDown={handleResize}
           style={{
@@ -124,16 +137,24 @@ export default function Sticker({ sticker }) {
             padding: "6px 12px",
             borderRadius: "10px",
             boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
-            cursor: "pointer",
+            fontSize: "14px",
             zIndex: 1000,
           }}
-          onMouseLeave={closeMenu}
-          onClick={() => {
-            deleteSticker(sticker.id);
-            closeMenu();
-          }}
+          onMouseDown={(e) => e.stopPropagation()}
+          onContextMenu={(e) => e.stopPropagation()}
         >
-          delete
+          <div
+            onClick={() => {
+              deleteSticker(sticker.id);
+              setMenu(null);
+            }}
+            style={{
+              padding: "4px 0",
+              cursor: "pointer",
+            }}
+          >
+            delete
+          </div>
         </div>
       )}
     </>

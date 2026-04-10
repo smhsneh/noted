@@ -1,7 +1,7 @@
 "use client";
 
 import { useBoardStore } from "../../store/board-store/board-store";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function StickyNote({ note = {} }) {
   const updateNotePosition = useBoardStore((s) => s.updateNotePosition);
@@ -15,9 +15,24 @@ export default function StickyNote({ note = {} }) {
   const togglePin = useBoardStore((s) => s.togglePin);
 
   const [editing, setEditing] = useState(false);
-  const [menu, setMenu] = useState(null); // {x, y}
+  const [menu, setMenu] = useState(null);
 
-  // 🔹 DRAG
+  useEffect(() => {
+    if (!menu) return;
+
+    const closeMenu = () => setMenu(null);
+
+    window.addEventListener("mousedown", closeMenu);
+    window.addEventListener("scroll", closeMenu);
+    window.addEventListener("contextmenu", closeMenu);
+
+    return () => {
+      window.removeEventListener("mousedown", closeMenu);
+      window.removeEventListener("scroll", closeMenu);
+      window.removeEventListener("contextmenu", closeMenu);
+    };
+  }, [menu]);
+
   const handleMouseDown = (e) => {
     if (note.pinned) return;
 
@@ -37,7 +52,6 @@ export default function StickyNote({ note = {} }) {
     window.addEventListener("mouseup", up);
   };
 
-  // 🔹 RESIZE
   const handleResizeMouseDown = (e) => {
     e.stopPropagation();
 
@@ -64,13 +78,11 @@ export default function StickyNote({ note = {} }) {
     window.addEventListener("mouseup", up);
   };
 
-  // 🔹 RIGHT CLICK MENU
   const handleContextMenu = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     setMenu({ x: e.clientX, y: e.clientY });
   };
-
-  const closeMenu = () => setMenu(null);
 
   return (
     <>
@@ -96,7 +108,7 @@ export default function StickyNote({ note = {} }) {
           `,
         }}
       >
-        {/* color dot */}
+        {/* color */}
         <div
           style={{
             position: "absolute",
@@ -179,23 +191,22 @@ export default function StickyNote({ note = {} }) {
           )}
         </div>
 
-        {/* resize */}
         <div
           onMouseDown={handleResizeMouseDown}
           style={{
             position: "absolute",
-            bottom: "6px",
-            right: "6px",
-            width: "16px",
-            height: "16px",
+            bottom: 0,
+            right: 0,
+            width: "14px",
+            height: "14px",
             borderRight: "3px solid rgba(0,0,0,0.4)",
             borderBottom: "3px solid rgba(0,0,0,0.4)",
+            borderRadius: "0 0 15px 0",
             cursor: "nwse-resize",
           }}
         />
       </div>
 
-      
       {menu && (
         <div
           style={{
@@ -203,29 +214,31 @@ export default function StickyNote({ note = {} }) {
             top: menu.y,
             left: menu.x,
             background: "white",
+            padding: "6px 12px",
             borderRadius: "10px",
             boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
-            padding: "6px",
+            fontSize: "14px",
             zIndex: 1000,
           }}
-          onMouseLeave={closeMenu}
+          onMouseDown={(e) => e.stopPropagation()}
+          onContextMenu={(e) => e.stopPropagation()}
         >
           <div
             onClick={() => {
               togglePin(note.id);
-              closeMenu();
+              setMenu(null);
             }}
-            style={{ padding: "6px 12px", cursor: "pointer" }}
+            style={{ padding: "4px 0", cursor: "pointer" }}
           >
-           {note.pinned ? "unpin" : "pin"}
+            {note.pinned ? "unpin" : "pin"}
           </div>
 
           <div
             onClick={() => {
               toggleNoteType(note.id);
-              closeMenu();
+              setMenu(null);
             }}
-            style={{ padding: "6px 12px", cursor: "pointer" }}
+            style={{ padding: "4px 0", cursor: "pointer" }}
           >
             toggle todo
           </div>
@@ -233,9 +246,9 @@ export default function StickyNote({ note = {} }) {
           <div
             onClick={() => {
               deleteNote(note.id);
-              closeMenu();
+              setMenu(null);
             }}
-            style={{ padding: "6px 12px", cursor: "pointer" }}
+            style={{ padding: "4px 0", cursor: "pointer" }}
           >
             delete
           </div>

@@ -15,7 +15,6 @@ export default function BoardPage() {
 
   const [showStickers, setShowStickers] = useState(false);
 
-  // zoom
   const zoomByStep = (direction) => {
     const step = 0.2;
 
@@ -65,21 +64,6 @@ export default function BoardPage() {
         </h1>
       </div>
 
-      {/* user */}
-      <div
-        style={{
-          position: "absolute",
-          top: "40px",
-          right: "48px",
-          width: "48px",
-          height: "48px",
-          borderRadius: "50%",
-          background: "white",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-          zIndex: 10,
-        }}
-      />
-
       {/* sidebar */}
       <div
         style={{
@@ -119,25 +103,9 @@ export default function BoardPage() {
               }}
             >
               {[
-                "envelope",
-                "flower",
-                "glitter",
-                "heart",
-                "panic",
-                "quote",
-                "slay",
-                "smiley",
-                "star",
-                "study",
-                "teddy",
-                "warning",
-                "work",
-                "pin",
-                "clip",
-                "check",
-                "ribbon",
-                "calendar",
-                "target",
+                "envelope","flower","glitter","heart","panic","quote","slay",
+                "smiley","star","study","teddy","warning","work","pin",
+                "clip","check","ribbon","calendar","target",
               ].map((name) => (
                 <img
                   key={name}
@@ -163,8 +131,6 @@ export default function BoardPage() {
             note
           </button>
 
-          <button className="tool-btn">color</button>
-
           <button
             className="tool-btn"
             onClick={() => setShowStickers((prev) => !prev)}
@@ -182,17 +148,44 @@ export default function BoardPage() {
           zIndex: 20,
           display: "flex",
           flexDirection: "column",
-          gap: "10px",
+          gap: "12px",
         }}
       >
-        <button className="tool-btn" onClick={() => zoomByStep("in")}>
+        <button
+          onClick={() => zoomByStep("in")}
+          style={{
+            width: "56px",
+            height: "56px",
+            borderRadius: "50%",
+            background: "white",
+            fontSize: "22px",
+            fontWeight: "600",
+            boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
           +
         </button>
-        <button className="tool-btn" onClick={() => zoomByStep("out")}>
+
+        <button
+          onClick={() => zoomByStep("out")}
+          style={{
+            width: "56px",
+            height: "56px",
+            borderRadius: "50%",
+            background: "white",
+            fontSize: "22px",
+            fontWeight: "600",
+            boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
           −
         </button>
       </div>
-      {/* canvas */}
+
       <Canvas />
     </div>
   );
