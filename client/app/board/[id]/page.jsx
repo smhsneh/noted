@@ -61,7 +61,7 @@ export default function BoardPage() {
             letterSpacing: "-0.5px",
           }}
         >
-          Noted.
+          noted.
         </h1>
       </div>
 
