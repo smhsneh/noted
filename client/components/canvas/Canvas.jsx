@@ -41,14 +41,25 @@ export default function Canvas() {
     window.addEventListener("mouseup", handleMouseUp);
   };
 
-  // zoom
   const handleWheel = (e) => {
     e.preventDefault();
+
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const worldX = cameraX + mouseX / zoom;
+    const worldY = cameraY + mouseY / zoom;
 
     let newZoom = zoom - e.deltaY * 0.001;
     newZoom = Math.max(0.3, Math.min(3, newZoom));
 
+    const newCameraX = worldX - mouseX / newZoom;
+    const newCameraY = worldY - mouseY / newZoom;
+
     setZoom(newZoom);
+    setCamera(newCameraX, newCameraY);
   };
 
   return (
@@ -64,14 +75,17 @@ export default function Canvas() {
         overflow: "hidden",
       }}
     >
-      {/* world */}
+      {}
       <div
         style={{
           width: "100%",
           height: "100%",
-          position: "relative",
-          transform: `scale(${zoom}) translate(${-cameraX}px, ${-cameraY}px)`,
-          transformOrigin: "0 0",
+          position: "absolute",
+          transform: `
+            translate(${-cameraX * zoom}px, ${-cameraY * zoom}px)
+            scale(${zoom})
+          `,
+          transformOrigin: "top left",
         }}
       >
         {notes.map((note) => (

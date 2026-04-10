@@ -7,7 +7,33 @@ export default function BoardPage() {
   const addNote = useBoardStore((state) => state.addNote);
   const addSticker = useBoardStore((state) => state.addSticker);
 
+  const cameraX = useBoardStore((s) => s.cameraX);
+  const cameraY = useBoardStore((s) => s.cameraY);
+  const zoom = useBoardStore((s) => s.zoom);
+  const setZoom = useBoardStore((s) => s.setZoom);
+  const setCamera = useBoardStore((s) => s.setCamera);
+
   const [showStickers, setShowStickers] = useState(false);
+
+  // zoom
+  const zoomByStep = (direction) => {
+    const step = 0.2;
+
+    let newZoom = zoom + (direction === "in" ? step : -step);
+    newZoom = Math.max(0.3, Math.min(3, newZoom));
+
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+
+    const worldX = cameraX + centerX / zoom;
+    const worldY = cameraY + centerY / zoom;
+
+    const newCameraX = worldX - centerX / newZoom;
+    const newCameraY = worldY - centerY / newZoom;
+
+    setZoom(newZoom);
+    setCamera(newCameraX, newCameraY);
+  };
 
   return (
     <div
@@ -18,7 +44,7 @@ export default function BoardPage() {
         overflow: "hidden",
       }}
     >
-      {/* hdr */}
+      {/* header */}
       <div
         style={{
           position: "absolute",
@@ -28,17 +54,18 @@ export default function BoardPage() {
         }}
       >
         <h1
-  className="dynapuff"
-  style={{
-    fontSize: "48px",
-    color: "#381932",
-  }}
->
-  Noted.
-</h1>
+          style={{
+            fontSize: "44px",
+            color: "#381932",
+            fontWeight: 700,
+            letterSpacing: "-0.5px",
+          }}
+        >
+          Noted.
+        </h1>
       </div>
 
-      {/* usr */}
+      {/* user */}
       <div
         style={{
           position: "absolute",
@@ -53,7 +80,7 @@ export default function BoardPage() {
         }}
       />
 
-      {/* sdb */}
+      {/* sidebar */}
       <div
         style={{
           position: "absolute",
@@ -131,10 +158,13 @@ export default function BoardPage() {
               ))}
             </div>
           )}
+
           <button onClick={addNote} className="tool-btn">
             note
           </button>
+
           <button className="tool-btn">color</button>
+
           <button
             className="tool-btn"
             onClick={() => setShowStickers((prev) => !prev)}
@@ -144,7 +174,25 @@ export default function BoardPage() {
         </div>
       </div>
 
-      {/* cv */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: "40px",
+          right: "40px",
+          zIndex: 20,
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+        }}
+      >
+        <button className="tool-btn" onClick={() => zoomByStep("in")}>
+          +
+        </button>
+        <button className="tool-btn" onClick={() => zoomByStep("out")}>
+          −
+        </button>
+      </div>
+      {/* canvas */}
       <Canvas />
     </div>
   );

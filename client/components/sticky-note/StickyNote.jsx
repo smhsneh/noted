@@ -12,10 +12,14 @@ export default function StickyNote({ note = {} }) {
   const addTodo = useBoardStore((state) => state.addTodo);
   const toggleTodo = useBoardStore((state) => state.toggleTodo);
   const toggleNoteType = useBoardStore((state) => state.toggleNoteType);
+  const togglePin = useBoardStore((state) => state.togglePin);
 
   const [editing, setEditing] = useState(false);
 
+  // drag (disabled if pinned)
   const handleMouseDown = (e) => {
+    if (note.pinned) return;
+
     const offsetX = e.clientX - (note.x || 0);
     const offsetY = e.clientY - (note.y || 0);
 
@@ -32,6 +36,7 @@ export default function StickyNote({ note = {} }) {
     window.addEventListener("mouseup", handleMouseUp);
   };
 
+  // resize
   const handleResizeMouseDown = (e) => {
     e.stopPropagation();
 
@@ -58,13 +63,7 @@ export default function StickyNote({ note = {} }) {
 
   return (
     <div
-      onMouseDown={(e) => {
-        if (e.shiftKey) {
-          deleteNote(note.id);
-          return;
-        }
-        handleMouseDown(e);
-      }}
+      onMouseDown={handleMouseDown}
       onDoubleClick={() => setEditing(true)}
       style={{
         position: "absolute",
@@ -75,6 +74,8 @@ export default function StickyNote({ note = {} }) {
         borderRadius: "20px",
         background: "white",
         padding: "50px 10px 10px 10px",
+        opacity: note.pinned ? 0.9 : 1,
+        border: note.pinned ? "2px solid #000" : "none",
         boxShadow: `
           0 0 0 2px white,
           6px 6px 16px rgba(0,0,0,0.08),
@@ -82,12 +83,51 @@ export default function StickyNote({ note = {} }) {
         `,
       }}
     >
-      {/* toggle type button */}
+      {/* pin */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          togglePin(note.id);
+        }}
+        style={{
+          position: "absolute",
+          top: "10px",
+          left: "12px",
+          fontSize: "14px",
+          cursor: "pointer",
+          background: note.pinned ? "#000" : "#eee",
+          color: note.pinned ? "white" : "black",
+          padding: "2px 6px",
+          borderRadius: "6px",
+        }}
+      >
+        📌
+      </button>
+
+      {/* delete */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          deleteNote(note.id);
+        }}
+        style={{
+          position: "absolute",
+          top: "10px",
+          right: "12px",
+          fontSize: "14px",
+          cursor: "pointer",
+          opacity: 0.6,
+        }}
+      >
+        ×
+      </button>
+
+      {/* toggle type */}
       <div
         onClick={() => toggleNoteType(note.id)}
         style={{
           position: "absolute",
-          top: "10px",
+          top: "36px",
           left: "12px",
           fontSize: "12px",
           cursor: "pointer",
@@ -103,7 +143,7 @@ export default function StickyNote({ note = {} }) {
       <div
         style={{
           position: "absolute",
-          top: "10px",
+          top: "36px",
           right: "12px",
           width: "20px",
           height: "20px",
