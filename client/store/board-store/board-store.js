@@ -1,17 +1,43 @@
 import { create } from "zustand";
 
-export const useBoardStore = create((set) => ({
+const STORAGE_KEY = "board-v1";
+
+const initialState = {
   notes: [],
   stickers: [],
-
   cameraX: 0,
   cameraY: 0,
   zoom: 1,
+};
+
+export const useBoardStore = create((set, get) => ({
+  ...initialState,
+
+  // hydrate manually
+  hydrate: () => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (!data) return;
+
+      const parsed = JSON.parse(data);
+
+      set({
+        notes: parsed.notes || [],
+        stickers: parsed.stickers || [],
+        cameraX: parsed.cameraX ?? 0,
+        cameraY: parsed.cameraY ?? 0,
+        zoom: parsed.zoom ?? 1,
+      });
+    } catch (e) {
+      console.error("failed to hydrate", e);
+    }
+  },
 
   setCamera: (x, y) => set({ cameraX: x, cameraY: y }),
   setZoom: (z) => set({ zoom: z }),
 
-  // add note
   addNote: () =>
     set((state) => ({
       notes: [
@@ -26,7 +52,7 @@ export const useBoardStore = create((set) => ({
           width: 200,
           height: 220,
           color: "#fde68a",
-          pinned: false, // ✅ NEW
+          pinned: false,
         },
       ],
     })),
@@ -34,21 +60,21 @@ export const useBoardStore = create((set) => ({
   updateNotePosition: (id, x, y) =>
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, x, y } : note,
+        note.id === id ? { ...note, x, y } : note
       ),
     })),
 
   updateNoteText: (id, text) =>
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, text } : note,
+        note.id === id ? { ...note, text } : note
       ),
     })),
 
   updateNoteColor: (id, color) =>
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, color } : note,
+        note.id === id ? { ...note, color } : note
       ),
     })),
 
@@ -70,7 +96,7 @@ export const useBoardStore = create((set) => ({
               ...note,
               todos: [...note.todos, { text, done: false }],
             }
-          : note,
+          : note
       ),
     })),
 
@@ -81,10 +107,10 @@ export const useBoardStore = create((set) => ({
           ? {
               ...note,
               todos: note.todos.map((todo, i) =>
-                i === index ? { ...todo, done: !todo.done } : todo,
+                i === index ? { ...todo, done: !todo.done } : todo
               ),
             }
-          : note,
+          : note
       ),
     })),
 
@@ -96,26 +122,24 @@ export const useBoardStore = create((set) => ({
               ...note,
               type: note.type === "text" ? "todo" : "text",
             }
-          : note,
+          : note
       ),
     })),
 
   updateNoteSize: (id, width, height) =>
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, width, height } : note,
+        note.id === id ? { ...note, width, height } : note
       ),
     })),
 
-  // PIN TOGGLE
   togglePin: (id) =>
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, pinned: !note.pinned } : note,
+        note.id === id ? { ...note, pinned: !note.pinned } : note
       ),
     })),
 
-  // stickers
   addSticker: (src) =>
     set((state) => ({
       stickers: [
@@ -133,13 +157,36 @@ export const useBoardStore = create((set) => ({
 
   updateStickerPosition: (id, x, y) =>
     set((state) => ({
-      stickers: state.stickers.map((s) => (s.id === id ? { ...s, x, y } : s)),
+      stickers: state.stickers.map((s) =>
+        s.id === id ? { ...s, x, y } : s
+      ),
     })),
 
   updateStickerSize: (id, width, height) =>
     set((state) => ({
       stickers: state.stickers.map((s) =>
-        s.id === id ? { ...s, width, height } : s,
+        s.id === id ? { ...s, width, height } : s
       ),
     })),
 }));
+
+//autosave
+let saveTimeout;
+
+useBoardStore.subscribe((state) => {
+  if (typeof window === "undefined") return;
+
+  clearTimeout(saveTimeout);
+
+  saveTimeout = setTimeout(() => {
+    const data = {
+      notes: state.notes,
+      stickers: state.stickers,
+      cameraX: state.cameraX,
+      cameraY: state.cameraY,
+      zoom: state.zoom,
+    };
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }, 400);
+});

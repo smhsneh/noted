@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Canvas from "../../../components/canvas/Canvas";
 import { useBoardStore } from "../../../store/board-store/board-store";
 
@@ -13,7 +13,14 @@ export default function BoardPage() {
   const setZoom = useBoardStore((s) => s.setZoom);
   const setCamera = useBoardStore((s) => s.setCamera);
 
+  const hydrate = useBoardStore((s) => s.hydrate);
+
   const [showStickers, setShowStickers] = useState(false);
+
+  //hydrate on mount
+  useEffect(() => {
+    hydrate();
+  }, []);
 
   const zoomByStep = (direction) => {
     const step = 0.2;
@@ -140,6 +147,7 @@ export default function BoardPage() {
         </div>
       </div>
 
+      {/* zoom controls */}
       <div
         style={{
           position: "absolute",
