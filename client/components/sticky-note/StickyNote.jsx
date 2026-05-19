@@ -17,6 +17,12 @@ export default function StickyNote({ note = {} }) {
   const [editing, setEditing] = useState(false);
   const [menu, setMenu] = useState(null);
 
+  // z-index
+  const [zIndex, setZIndex] = useState(1);
+
+  // font size
+  const [fontSize, setFontSize] = useState(note.fontSize || 16);
+
   useEffect(() => {
     if (!menu) return;
 
@@ -33,7 +39,20 @@ export default function StickyNote({ note = {} }) {
     };
   }, [menu]);
 
+  const bringToFront = () => {
+    const highestZ =
+      Math.max(
+        ...Array.from(document.querySelectorAll(".sticky-note")).map(
+          (el) => Number(el.style.zIndex) || 1
+        )
+      ) + 1;
+
+    setZIndex(highestZ);
+  };
+
   const handleMouseDown = (e) => {
+    bringToFront();
+
     if (note.pinned) return;
 
     const offsetX = e.clientX - (note.x || 0);
@@ -64,8 +83,8 @@ export default function StickyNote({ note = {} }) {
     const move = (e) => {
       updateNoteSize(
         note.id,
-        startW + (e.clientX - startX),
-        startH + (e.clientY - startY)
+        Math.max(180, startW + (e.clientX - startX)),
+        Math.max(180, startH + (e.clientY - startY))
       );
     };
 
@@ -81,12 +100,16 @@ export default function StickyNote({ note = {} }) {
   const handleContextMenu = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
+    bringToFront();
+
     setMenu({ x: e.clientX, y: e.clientY });
   };
 
   return (
     <>
       <div
+        className="sticky-note"
         onMouseDown={handleMouseDown}
         onDoubleClick={() => setEditing(true)}
         onContextMenu={handleContextMenu}
@@ -97,41 +120,101 @@ export default function StickyNote({ note = {} }) {
           width: note.width || 200,
           height: note.height || 220,
           borderRadius: "20px",
-          background: "white",
-          padding: "40px 10px 10px 10px",
+          background: note.color || "#fde68a",
+
+          // proper internal spacing
+          padding: "52px 16px 16px 16px",
+
           opacity: note.pinned ? 0.9 : 1,
           border: note.pinned ? "2px solid #000" : "none",
+          zIndex,
+          cursor: note.pinned ? "default" : "grab",
+          transition: "box-shadow 0.2s ease",
+
           boxShadow: `
             0 0 0 2px white,
-            6px 6px 16px rgba(0,0,0,0.08),
-            -4px -4px 10px rgba(255,255,255,0.7)
+            8px 10px 24px rgba(0,0,0,0.12),
+            -4px -4px 12px rgba(255,255,255,0.65)
           `,
         }}
       >
-        {/* color */}
+        {/* top controls */}
         <div
           style={{
             position: "absolute",
             top: "10px",
+            left: "12px",
             right: "12px",
-            width: "18px",
-            height: "18px",
-            borderRadius: "50%",
-            background: note.color || "#fde68a",
-            boxShadow: "0 0 0 2px white",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
-          <input
-            type="color"
-            value={note.color || "#fde68a"}
-            onChange={(e) => updateNoteColor(note.id, e.target.value)}
+          {/* font controls */}
+          <div
             style={{
-              position: "absolute",
-              inset: 0,
-              opacity: 0,
-              cursor: "pointer",
+              display: "flex",
+              gap: "6px",
             }}
-          />
+          >
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setFontSize((prev) => Math.max(12, prev - 2));
+              }}
+              style={{
+                border: "none",
+                background: "rgba(255,255,255,0.7)",
+                borderRadius: "8px",
+                padding: "2px 8px",
+                cursor: "pointer",
+                fontWeight: "600",
+              }}
+            >
+              A-
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setFontSize((prev) => Math.min(32, prev + 2));
+              }}
+              style={{
+                border: "none",
+                background: "rgba(255,255,255,0.7)",
+                borderRadius: "8px",
+                padding: "2px 8px",
+                cursor: "pointer",
+                fontWeight: "600",
+              }}
+            >
+              A+
+            </button>
+          </div>
+
+          {/* color picker */}
+          <div
+            style={{
+              position: "relative",
+              width: "18px",
+              height: "18px",
+              borderRadius: "50%",
+              background: note.color || "#fde68a",
+              boxShadow: "0 0 0 2px white",
+            }}
+          >
+            <input
+              type="color"
+              value={note.color || "#fde68a"}
+              onChange={(e) => updateNoteColor(note.id, e.target.value)}
+              style={{
+                position: "absolute",
+                inset: 0,
+                opacity: 0,
+                cursor: "pointer",
+              }}
+            />
+          </div>
         </div>
 
         {/* content */}
@@ -139,74 +222,118 @@ export default function StickyNote({ note = {} }) {
           style={{
             width: "100%",
             height: "100%",
-            borderRadius: "12px",
-            padding: "14px",
-            background: note.color || "#fde68a",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           {note.type === "text" ? (
             editing ? (
               <textarea
                 autoFocus
-                defaultValue={note.text || ""}
-                onBlur={(e) => {
-                  updateNoteText(note.id, e.target.value);
-                  setEditing(false);
-                }}
+                value={note.text || ""}
+                onChange={(e) =>
+                  updateNoteText(note.id, e.target.value)
+                }
+                onBlur={() => setEditing(false)}
                 style={{
-                  background: "transparent",
+                  width: "100%",
+                  height: "100%",
                   border: "none",
                   outline: "none",
                   resize: "none",
-                  width: "100%",
-                  height: "100%",
+                  background: "transparent",
+                  fontSize: `${fontSize}px`,
+                  color: "#222",
+                  fontFamily: "inherit",
                 }}
               />
             ) : (
-              <div>{note.text}</div>
+              <div
+                onClick={() => setEditing(true)}
+                style={{
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                  overflowY: "auto",
+                  height: "100%",
+                  fontSize: `${fontSize}px`,
+                  color: "#222",
+                }}
+              >
+                {note.text}
+              </div>
             )
           ) : (
-            <div>
-              {(note.todos || []).map((todo, i) => (
-                <div key={i}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+                overflowY: "auto",
+              }}
+            >
+              {(note.todos || []).map((todo, index) => (
+                <label
+                  key={index}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    fontSize: `${fontSize}px`,
+                  }}
+                >
                   <input
                     type="checkbox"
-                    checked={!!todo.done}
-                    onChange={() => toggleTodo(note.id, i)}
+                    checked={todo.done}
+                    onChange={() => toggleTodo(note.id, index)}
                   />
-                  {todo.text}
-                </div>
+
+                  <span
+                    style={{
+                      textDecoration: todo.done
+                        ? "line-through"
+                        : "none",
+                    }}
+                  >
+                    {todo.text}
+                  </span>
+                </label>
               ))}
 
-              <input
-                placeholder="add task"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && e.target.value.trim()) {
-                    addTodo(note.id, e.target.value);
-                    e.target.value = "";
-                  }
+              <button
+                onClick={() => addTodo(note.id, "new todo")}
+                style={{
+                  border: "none",
+                  borderRadius: "10px",
+                  padding: "8px",
+                  cursor: "pointer",
+                  background: "rgba(255,255,255,0.7)",
+                  fontWeight: "600",
                 }}
-              />
+              >
+                + add todo
+              </button>
             </div>
           )}
         </div>
 
+        {/* resize handle */}
         <div
           onMouseDown={handleResizeMouseDown}
           style={{
             position: "absolute",
-            bottom: 0,
-            right: 0,
+            right: "10px",
+            bottom: "10px",
             width: "14px",
             height: "14px",
             borderRight: "3px solid rgba(0,0,0,0.4)",
             borderBottom: "3px solid rgba(0,0,0,0.4)",
-            borderRadius: "0 0 15px 0",
             cursor: "nwse-resize",
           }}
         />
       </div>
 
+      {/* context menu */}
       {menu && (
         <div
           style={{
@@ -214,44 +341,64 @@ export default function StickyNote({ note = {} }) {
             top: menu.y,
             left: menu.x,
             background: "white",
-            padding: "6px 12px",
-            borderRadius: "10px",
+            padding: "10px",
+            borderRadius: "12px",
             boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
             fontSize: "14px",
-            zIndex: 1000,
+            zIndex: 99999,
+            display: "flex",
+            flexDirection: "column",
+            gap: "8px",
+            minWidth: "140px",
           }}
           onMouseDown={(e) => e.stopPropagation()}
           onContextMenu={(e) => e.stopPropagation()}
         >
-          <div
+          <button
             onClick={() => {
               togglePin(note.id);
               setMenu(null);
             }}
-            style={{ padding: "4px 0", cursor: "pointer" }}
+            style={{
+              border: "none",
+              background: "transparent",
+              textAlign: "left",
+              cursor: "pointer",
+            }}
           >
             {note.pinned ? "unpin" : "pin"}
-          </div>
+          </button>
 
-          <div
+          <button
             onClick={() => {
               toggleNoteType(note.id);
               setMenu(null);
             }}
-            style={{ padding: "4px 0", cursor: "pointer" }}
+            style={{
+              border: "none",
+              background: "transparent",
+              textAlign: "left",
+              cursor: "pointer",
+            }}
           >
-            toggle todo
-          </div>
+            switch type
+          </button>
 
-          <div
+          <button
             onClick={() => {
               deleteNote(note.id);
               setMenu(null);
             }}
-            style={{ padding: "4px 0", cursor: "pointer" }}
+            style={{
+              border: "none",
+              background: "transparent",
+              textAlign: "left",
+              cursor: "pointer",
+              color: "#dc2626",
+            }}
           >
             delete
-          </div>
+          </button>
         </div>
       )}
     </>

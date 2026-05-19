@@ -78,8 +78,8 @@ export const useBoardStore = create((set, get) => ({
           type: "text",
           text: "new note",
           todos: [],
-          x: 200,
-          y: 200,
+          x: 200 + state.notes.length * 30,
+          y: 200 + state.notes.length * 30,
           width: 200,
           height: 220,
           color: "#fde68a",
@@ -91,21 +91,21 @@ export const useBoardStore = create((set, get) => ({
   updateNotePosition: (id, x, y) =>
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, x, y } : note
+        note.id === id ? { ...note, x, y } : note,
       ),
     })),
 
   updateNoteText: (id, text) =>
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, text } : note
+        note.id === id ? { ...note, text } : note,
       ),
     })),
 
   updateNoteColor: (id, color) =>
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, color } : note
+        note.id === id ? { ...note, color } : note,
       ),
     })),
 
@@ -127,7 +127,7 @@ export const useBoardStore = create((set, get) => ({
               ...note,
               todos: [...note.todos, { text, done: false }],
             }
-          : note
+          : note,
       ),
     })),
 
@@ -138,10 +138,10 @@ export const useBoardStore = create((set, get) => ({
           ? {
               ...note,
               todos: note.todos.map((todo, i) =>
-                i === index ? { ...todo, done: !todo.done } : todo
+                i === index ? { ...todo, done: !todo.done } : todo,
               ),
             }
-          : note
+          : note,
       ),
     })),
 
@@ -153,21 +153,21 @@ export const useBoardStore = create((set, get) => ({
               ...note,
               type: note.type === "text" ? "todo" : "text",
             }
-          : note
+          : note,
       ),
     })),
 
   updateNoteSize: (id, width, height) =>
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, width, height } : note
+        note.id === id ? { ...note, width, height } : note,
       ),
     })),
 
   togglePin: (id) =>
     set((state) => ({
       notes: state.notes.map((note) =>
-        note.id === id ? { ...note, pinned: !note.pinned } : note
+        note.id === id ? { ...note, pinned: !note.pinned } : note,
       ),
     })),
 
@@ -188,15 +188,13 @@ export const useBoardStore = create((set, get) => ({
 
   updateStickerPosition: (id, x, y) =>
     set((state) => ({
-      stickers: state.stickers.map((s) =>
-        s.id === id ? { ...s, x, y } : s
-      ),
+      stickers: state.stickers.map((s) => (s.id === id ? { ...s, x, y } : s)),
     })),
 
   updateStickerSize: (id, width, height) =>
     set((state) => ({
       stickers: state.stickers.map((s) =>
-        s.id === id ? { ...s, width, height } : s
+        s.id === id ? { ...s, width, height } : s,
       ),
     })),
 }));
