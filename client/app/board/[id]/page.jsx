@@ -1,5 +1,7 @@
 "use client";
+
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import Canvas from "../../../components/canvas/Canvas";
 import { useBoardStore } from "../../../store/board-store/board-store";
 
@@ -14,10 +16,11 @@ export default function BoardPage() {
   const setCamera = useBoardStore((s) => s.setCamera);
 
   const hydrate = useBoardStore((s) => s.hydrate);
+  const hydrated = useBoardStore((s) => s.hydrated);
 
   const [showStickers, setShowStickers] = useState(false);
 
-  //hydrate on mount
+  // hydrate on mount
   useEffect(() => {
     hydrate();
   }, []);
@@ -41,6 +44,26 @@ export default function BoardPage() {
     setCamera(newCameraX, newCameraY);
   };
 
+  if (!hydrated) {
+    return (
+      <div
+        style={{
+          width: "100vw",
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#f7f4f2",
+          color: "#381932",
+          fontSize: "20px",
+          fontWeight: "600",
+        }}
+      >
+        loading board...
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
@@ -50,6 +73,26 @@ export default function BoardPage() {
         overflow: "hidden",
       }}
     >
+      {/* home button */}
+      <Link
+        href="/"
+        style={{
+          position: "absolute",
+          top: "40px",
+          right: "40px",
+          zIndex: 50,
+          background: "white",
+          padding: "12px 18px",
+          borderRadius: "14px",
+          textDecoration: "none",
+          color: "#381932",
+          fontWeight: "600",
+          boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
+        }}
+      >
+        ← home
+      </Link>
+
       {/* header */}
       <div
         style={{
@@ -110,9 +153,25 @@ export default function BoardPage() {
               }}
             >
               {[
-                "envelope","flower","glitter","heart","panic","quote","slay",
-                "smiley","star","study","teddy","warning","work","pin",
-                "clip","check","ribbon","calendar","target",
+                "envelope",
+                "flower",
+                "glitter",
+                "heart",
+                "panic",
+                "quote",
+                "slay",
+                "smiley",
+                "star",
+                "study",
+                "teddy",
+                "warning",
+                "work",
+                "pin",
+                "clip",
+                "check",
+                "ribbon",
+                "calendar",
+                "target",
               ].map((name) => (
                 <img
                   key={name}

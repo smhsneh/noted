@@ -13,12 +13,12 @@ const initialState = {
 export const useBoardStore = create((set, get) => ({
   ...initialState,
 
-  // hydrate board
+  hydrated: false,
+
   hydrate: async () => {
     if (typeof window === "undefined") return;
 
     try {
-      // try backend first
       const response = await fetch("/api/board");
 
       if (response.ok) {
@@ -30,9 +30,9 @@ export const useBoardStore = create((set, get) => ({
           cameraX: board.cameraX ?? 0,
           cameraY: board.cameraY ?? 0,
           zoom: board.zoom ?? 1,
+          hydrated: true,
         });
 
-        // sync local backup
         localStorage.setItem(STORAGE_KEY, JSON.stringify(board));
 
         return;
@@ -41,11 +41,13 @@ export const useBoardStore = create((set, get) => ({
       console.error("backend fetch failed", error);
     }
 
-    // fallback to localStorage
     try {
       const data = localStorage.getItem(STORAGE_KEY);
 
-      if (!data) return;
+      if (!data) {
+        set({ hydrated: true });
+        return;
+      }
 
       const parsed = JSON.parse(data);
 
@@ -55,9 +57,12 @@ export const useBoardStore = create((set, get) => ({
         cameraX: parsed.cameraX ?? 0,
         cameraY: parsed.cameraY ?? 0,
         zoom: parsed.zoom ?? 1,
+        hydrated: true,
       });
     } catch (e) {
       console.error("local hydrate failed", e);
+
+      set({ hydrated: true });
     }
   },
 
@@ -196,11 +201,12 @@ export const useBoardStore = create((set, get) => ({
     })),
 }));
 
-// autosave
 let saveTimeout;
 
 useBoardStore.subscribe((state) => {
   if (typeof window === "undefined") return;
+
+  if (!state.hydrated) return;
 
   clearTimeout(saveTimeout);
 
@@ -213,10 +219,8 @@ useBoardStore.subscribe((state) => {
       zoom: state.zoom,
     };
 
-    // local backup
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 
-    // cloud save
     try {
       await fetch("/api/board", {
         method: "POST",
