@@ -31,6 +31,13 @@ const StickerSchema = new mongoose.Schema(
 
 const BoardSchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      unique: true,
+    },
+
     notes: [NoteSchema],
 
     stickers: [StickerSchema],
@@ -55,4 +62,5 @@ const BoardSchema = new mongoose.Schema(
   },
 );
 
-export default mongoose.models.Board || mongoose.model("Board", BoardSchema);
+export default mongoose.models.Board ||
+  mongoose.model("Board", BoardSchema);
