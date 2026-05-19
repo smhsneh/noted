@@ -12,8 +12,9 @@ const NoteSchema = new mongoose.Schema(
     height: Number,
     color: String,
     pinned: Boolean,
+    fontSize: Number,
   },
-  { _id: false }
+  { _id: false },
 );
 
 const StickerSchema = new mongoose.Schema(
@@ -25,7 +26,7 @@ const StickerSchema = new mongoose.Schema(
     width: Number,
     height: Number,
   },
-  { _id: false }
+  { _id: false },
 );
 
 const BoardSchema = new mongoose.Schema(
@@ -51,8 +52,7 @@ const BoardSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-export default mongoose.models.Board ||
-  mongoose.model("Board", BoardSchema);
+export default mongoose.models.Board || mongoose.model("Board", BoardSchema);
