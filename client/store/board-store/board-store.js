@@ -13,12 +13,38 @@ const initialState = {
 export const useBoardStore = create((set, get) => ({
   ...initialState,
 
-  // hydrate manually
-  hydrate: () => {
+  // hydrate board
+  hydrate: async () => {
     if (typeof window === "undefined") return;
 
     try {
+      // try backend first
+      const response = await fetch("/api/board");
+
+      if (response.ok) {
+        const board = await response.json();
+
+        set({
+          notes: board.notes || [],
+          stickers: board.stickers || [],
+          cameraX: board.cameraX ?? 0,
+          cameraY: board.cameraY ?? 0,
+          zoom: board.zoom ?? 1,
+        });
+
+        // sync local backup
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(board));
+
+        return;
+      }
+    } catch (error) {
+      console.error("backend fetch failed", error);
+    }
+
+    // fallback to localStorage
+    try {
       const data = localStorage.getItem(STORAGE_KEY);
+
       if (!data) return;
 
       const parsed = JSON.parse(data);
@@ -31,7 +57,7 @@ export const useBoardStore = create((set, get) => ({
         zoom: parsed.zoom ?? 1,
       });
     } catch (e) {
-      console.error("failed to hydrate", e);
+      console.error("local hydrate failed", e);
     }
   },
 
@@ -170,7 +196,7 @@ export const useBoardStore = create((set, get) => ({
     })),
 }));
 
-//autosave
+// autosave
 let saveTimeout;
 
 useBoardStore.subscribe((state) => {
@@ -178,7 +204,7 @@ useBoardStore.subscribe((state) => {
 
   clearTimeout(saveTimeout);
 
-  saveTimeout = setTimeout(() => {
+  saveTimeout = setTimeout(async () => {
     const data = {
       notes: state.notes,
       stickers: state.stickers,
@@ -187,6 +213,20 @@ useBoardStore.subscribe((state) => {
       zoom: state.zoom,
     };
 
+    // local backup
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, 400);
+
+    // cloud save
+    try {
+      await fetch("/api/board", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+    } catch (error) {
+      console.error("cloud save failed", error);
+    }
+  }, 500);
 });
