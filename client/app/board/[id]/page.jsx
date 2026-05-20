@@ -11,55 +11,33 @@ import { useBoardStore } from "../../../store/board-store/board-store";
 export default function BoardPage() {
   const router = useRouter();
 
-  const addNote = useBoardStore(
-    (state) => state.addNote,
-  );
+  const addNote = useBoardStore((state) => state.addNote);
 
-  const addSticker = useBoardStore(
-    (state) => state.addSticker,
-  );
+  const addSticker = useBoardStore((state) => state.addSticker);
 
-  const cameraX = useBoardStore(
-    (s) => s.cameraX,
-  );
+  const cameraX = useBoardStore((s) => s.cameraX);
 
-  const cameraY = useBoardStore(
-    (s) => s.cameraY,
-  );
+  const cameraY = useBoardStore((s) => s.cameraY);
 
-  const zoom = useBoardStore(
-    (s) => s.zoom,
-  );
+  const zoom = useBoardStore((s) => s.zoom);
 
-  const setZoom = useBoardStore(
-    (s) => s.setZoom,
-  );
+  const setZoom = useBoardStore((s) => s.setZoom);
 
-  const setCamera = useBoardStore(
-    (s) => s.setCamera,
-  );
+  const setCamera = useBoardStore((s) => s.setCamera);
 
-  const hydrate = useBoardStore(
-    (s) => s.hydrate,
-  );
+  const hydrate = useBoardStore((s) => s.hydrate);
 
-  const hydrated = useBoardStore(
-    (s) => s.hydrated,
-  );
+  const hydrated = useBoardStore((s) => s.hydrated);
 
-  const [showStickers, setShowStickers] =
-    useState(false);
+  const [showStickers, setShowStickers] = useState(false);
 
-  const [authLoading, setAuthLoading] =
-    useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
 
   // auth check + hydrate
   useEffect(() => {
     async function initializeBoard() {
       try {
-        const response = await fetch(
-          "/api/auth/me",
-        );
+        const response = await fetch("/api/auth/me");
 
         if (!response.ok) {
           router.push("/login");
@@ -82,41 +60,25 @@ export default function BoardPage() {
   const zoomByStep = (direction) => {
     const step = 0.2;
 
-    let newZoom =
-      zoom +
-      (direction === "in"
-        ? step
-        : -step);
+    let newZoom = zoom + (direction === "in" ? step : -step);
 
-    newZoom = Math.max(
-      0.3,
-      Math.min(3, newZoom),
-    );
+    newZoom = Math.max(0.3, Math.min(3, newZoom));
 
-    const centerX =
-      window.innerWidth / 2;
+    const centerX = window.innerWidth / 2;
 
-    const centerY =
-      window.innerHeight / 2;
+    const centerY = window.innerHeight / 2;
 
-    const worldX =
-      cameraX + centerX / zoom;
+    const worldX = cameraX + centerX / zoom;
 
-    const worldY =
-      cameraY + centerY / zoom;
+    const worldY = cameraY + centerY / zoom;
 
-    const newCameraX =
-      worldX - centerX / newZoom;
+    const newCameraX = worldX - centerX / newZoom;
 
-    const newCameraY =
-      worldY - centerY / newZoom;
+    const newCameraY = worldY - centerY / newZoom;
 
     setZoom(newZoom);
 
-    setCamera(
-      newCameraX,
-      newCameraY,
-    );
+    setCamera(newCameraX, newCameraY);
   };
 
   if (authLoading || !hydrated) {
@@ -148,61 +110,62 @@ export default function BoardPage() {
         overflow: "hidden",
       }}
     >
-      {/* logout button */}
 
-      <button
-        onClick={async () => {
-          await fetch(
-            "/api/auth/logout",
-            {
-              method: "POST",
-            },
-          );
-
-          router.push("/");
-        }}
-        style={{
-          position: "absolute",
-          top: "40px",
-          right: "170px",
-          zIndex: 50,
-          background: "#381932",
-          color: "white",
-          padding: "12px 18px",
-          borderRadius: "14px",
-          border: "none",
-          cursor: "pointer",
-          fontWeight: "600",
-          boxShadow:
-            "0 8px 20px rgba(0,0,0,0.08)",
-        }}
-      >
-        logout
-      </button>
-
-      {/* home button */}
-
-      <Link
-        href="/"
+      <div
         style={{
           position: "absolute",
           top: "40px",
           right: "40px",
           zIndex: 50,
-          background: "white",
-          padding: "12px 18px",
-          borderRadius: "14px",
-          textDecoration: "none",
-          color: "#381932",
-          fontWeight: "600",
-          boxShadow:
-            "0 8px 20px rgba(0,0,0,0.08)",
+          display: "flex",
+          gap: "12px",
+          alignItems: "center",
         }}
       >
-        ← home
-      </Link>
 
-      {/* header */}
+        <button
+          onClick={async () => {
+            await fetch("/api/auth/logout", {
+              method: "POST",
+            });
+
+            router.push("/");
+          }}
+          style={{
+            background: "white",
+            color: "#381932",
+            padding: "12px 20px",
+            borderRadius: "16px",
+            border: "2px solid rgba(56,25,50,0.08)",
+            cursor: "pointer",
+            fontWeight: "700",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
+            transition: "all 0.2s ease",
+          }}
+        >
+          logout
+        </button>
+
+        <Link
+          href="/"
+          style={{
+            background: "white",
+            color: "#381932",
+            padding: "12px 20px",
+            borderRadius: "16px",
+            textDecoration: "none",
+            fontWeight: "700",
+            border: "2px solid rgba(56,25,50,0.08)",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
+            transition: "all 0.2s ease",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
+        >
+          home
+        </Link>
+      </div>
 
       <div
         style={{
@@ -224,15 +187,12 @@ export default function BoardPage() {
         </h1>
       </div>
 
-      {/* sidebar */}
-
       <div
         style={{
           position: "absolute",
           left: "40px",
           top: "50%",
-          transform:
-            "translateY(-50%)",
+          transform: "translateY(-50%)",
           zIndex: 10,
         }}
       >
@@ -241,30 +201,30 @@ export default function BoardPage() {
             display: "flex",
             flexDirection: "column",
             gap: "12px",
-            padding: "16px",
-            borderRadius: "24px",
-            background: "white",
-            boxShadow:
-              "0 10px 25px rgba(0,0,0,0.1)",
+            padding: "14px",
+            borderRadius: "26px",
+            background: "rgba(255,255,255,0.18)",
+            backdropFilter: "blur(16px)",
+            border: "1px solid rgba(255,255,255,0.25)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+            minWidth: "170px",
           }}
         >
           {showStickers && (
             <div
               style={{
                 position: "absolute",
-                left: "90px",
+                left: "190px",
                 top: "50%",
-                transform:
-                  "translateY(-50%)",
-                background: "white",
-                padding: "12px",
-                borderRadius: "16px",
-                boxShadow:
-                  "0 10px 30px rgba(0,0,0,0.1)",
+                transform: "translateY(-50%)",
+                background: "rgba(255,255,255,0.92)",
+                backdropFilter: "blur(12px)",
+                padding: "16px",
+                borderRadius: "22px",
+                boxShadow: "0 12px 34px rgba(0,0,0,0.12)",
                 display: "grid",
-                gridTemplateColumns:
-                  "repeat(3, 60px)",
-                gap: "10px",
+                gridTemplateColumns: "repeat(3, 64px)",
+                gap: "12px",
                 zIndex: 20,
               }}
             >
@@ -293,23 +253,18 @@ export default function BoardPage() {
                   key={name}
                   src={`/stickers/${name}.png`}
                   onClick={() => {
-                    addSticker(
-                      `/stickers/${name}.png`,
-                    );
+                    addSticker(`/stickers/${name}.png`);
 
-                    setShowStickers(
-                      false,
-                    );
+                    setShowStickers(false);
                   }}
                   style={{
-                    width: "50px",
-                    height: "50px",
-                    objectFit:
-                      "contain",
+                    width: "56px",
+                    height: "56px",
+                    objectFit: "contain",
                     cursor: "pointer",
-                    borderRadius:
-                      "10px",
-                    padding: "6px",
+                    borderRadius: "14px",
+                    padding: "8px",
+                    transition: "all 0.2s ease",
                   }}
                 />
               ))}
@@ -318,24 +273,45 @@ export default function BoardPage() {
 
           <button
             onClick={addNote}
-            className="tool-btn"
+            style={{
+              background: "rgba(255,255,255,0.55)",
+              color: "#381932",
+              border: "1px solid rgba(255,255,255,0.4)",
+              borderRadius: "18px",
+              padding: "15px 18px",
+              fontSize: "15px",
+              fontWeight: "600",
+              textTransform: "lowercase",
+              cursor: "pointer",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
+              transition: "all 0.2s ease",
+            }}
           >
-            note
+            add note
           </button>
 
           <button
-            className="tool-btn"
-            onClick={() =>
-              setShowStickers(
-                (prev) => !prev,
-              )
-            }
+            onClick={() => setShowStickers((prev) => !prev)}
+            style={{
+              background: "rgba(255,255,255,0.55)",
+              color: "#381932",
+              border: "1px solid rgba(255,255,255,0.4)",
+              borderRadius: "18px",
+              padding: "15px 18px",
+              fontSize: "15px",
+              fontWeight: "600",
+              textTransform: "lowercase",
+              cursor: "pointer",
+              backdropFilter: "blur(10px)",
+              boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
+              transition: "all 0.2s ease",
+            }}
           >
-            stickers
+            add sticker
           </button>
         </div>
       </div>
-
       {/* zoom controls */}
 
       <div
@@ -350,9 +326,7 @@ export default function BoardPage() {
         }}
       >
         <button
-          onClick={() =>
-            zoomByStep("in")
-          }
+          onClick={() => zoomByStep("in")}
           style={{
             width: "56px",
             height: "56px",
@@ -360,8 +334,7 @@ export default function BoardPage() {
             background: "white",
             fontSize: "22px",
             fontWeight: "600",
-            boxShadow:
-              "0 6px 16px rgba(0,0,0,0.15)",
+            boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
             border: "none",
             cursor: "pointer",
           }}
@@ -370,9 +343,7 @@ export default function BoardPage() {
         </button>
 
         <button
-          onClick={() =>
-            zoomByStep("out")
-          }
+          onClick={() => zoomByStep("out")}
           style={{
             width: "56px",
             height: "56px",
@@ -380,8 +351,7 @@ export default function BoardPage() {
             background: "white",
             fontSize: "22px",
             fontWeight: "600",
-            boxShadow:
-              "0 6px 16px rgba(0,0,0,0.15)",
+            boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
             border: "none",
             cursor: "pointer",
           }}

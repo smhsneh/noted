@@ -1,72 +1,47 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const router = useRouter();
 
   const rows = 22;
   const cols = 40;
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-  const grid: string[][] = [];
-
-  for (let i = 0; i < rows; i++) {
-    const row = [];
-
-    for (let j = 0; j < cols; j++) {
-      row.push(
-        chars[
-          Math.floor(
-            Math.random() *
-              chars.length,
-          )
-        ],
-      );
+  const generateGrid = () => {
+    const generated: string[][] = [];
+    for (let i = 0; i < rows; i++) {
+      const row: string[] = [];
+      for (let j = 0; j < cols; j++) {
+        row.push(chars[Math.floor(Math.random() * chars.length)]);
+      }
+      generated.push(row);
     }
 
-    grid.push(row);
-  }
+    const noted = "NOTED";
+    for (let i = 0; i < noted.length; i++) generated[5][5 + i] = noted[i];
 
-  // NOTED
+    const think = "THINK";
+    for (let i = 0; i < think.length; i++) generated[10][3 + i] = think[i];
 
-  const noted = "NOTED";
+    const noteit = "SMHSNEH";
+    for (let i = 0; i < noteit.length; i++) generated[7][14 + i] = noteit[i];
 
-  for (
-    let i = 0;
-    i < noted.length;
-    i++
-  ) {
-    grid[5][5 + i] = noted[i];
-  }
+    const visually = "VISUALLY";
+    for (let i = 0; i < visually.length; i++) generated[16][8 + i] = visually[i];
 
-  // THINK
+    return generated;
+  };
 
-  const think = "THINK";
+  const [grid, setGrid] = useState<string[][]>([]);
+  const [mounted, setMounted] = useState(false);
 
-  for (
-    let i = 0;
-    i < think.length;
-    i++
-  ) {
-    grid[10][3 + i] = think[i];
-  }
-
-  // VISUALLY
-
-  const visually =
-    "VISUALLY";
-
-  for (
-    let i = 0;
-    i < visually.length;
-    i++
-  ) {
-    grid[16][8 + i] =
-      visually[i];
-  }
+  useEffect(() => {
+    setGrid(generateGrid());
+    setMounted(true);
+  }, []);
 
   return (
     <main
@@ -78,49 +53,13 @@ export default function Home() {
         px-6
         py-6
         overflow-hidden
-        bg-white
         relative
       "
+      style={{
+        background:
+          "linear-gradient(135deg, #ffd6e0 0%, #fce4ec 15%, #f8d7f0 30%, #e8d5f5 45%, #d5e8f5 60%, #c8e6f8 75%, #bae0fa 90%, #aed6f1 100%)",
+      }}
     >
-      {/* subtle gradients */}
-
-      <div
-        className="
-          absolute
-          top-[-220px]
-          left-[-180px]
-          w-[520px]
-          h-[520px]
-          rounded-full
-          blur-[140px]
-          opacity-25
-          pointer-events-none
-        "
-        style={{
-          background:
-            "rgba(255,182,193,0.22)",
-        }}
-      />
-
-      <div
-        className="
-          absolute
-          bottom-[-220px]
-          right-[-180px]
-          w-[520px]
-          h-[520px]
-          rounded-full
-          blur-[140px]
-          opacity-25
-          pointer-events-none
-        "
-        style={{
-          background:
-            "rgba(186,230,253,0.22)",
-        }}
-      />
-
-      {/* container */}
 
       <div
         className="
@@ -128,8 +67,7 @@ export default function Home() {
           w-full
           max-w-[1500px]
           min-h-[720px]
-          bg-white/70
-          backdrop-blur-sm
+          bg-white
           border
           border-black/5
           rounded-[28px]
@@ -139,25 +77,9 @@ export default function Home() {
         "
       >
         {/* main */}
-
-        <div
-          className="
-            flex-1
-            grid
-            grid-cols-2
-          "
-        >
+        <div className="flex-1 grid grid-cols-2">
           {/* left */}
-
-          <div
-            className="
-              flex
-              flex-col
-              justify-center
-              px-[70px]
-              py-[40px]
-            "
-          >
+          <div className="flex flex-col justify-center px-[70px] py-[40px]">
             <p
               className="
                 text-[12px]
@@ -193,53 +115,33 @@ export default function Home() {
                 font-normal
               "
             >
-              an infinite canvas for
-              freeform thinking,
-              visual workflows, and
-              the beautiful mess of
-              your mind.
+              an infinite canvas for freeform thinking, visual workflows, and
+              the beautiful mess of your mind.
             </p>
 
             {/* button */}
-
             <div className="mt-10">
               <button
-                onClick={() =>
-                  router.push("/login")
-                }
+                onClick={() => router.push("/login")}
                 onMouseEnter={(e) => {
-                  const gradient =
-                    e.currentTarget.querySelector(
-                      ".gradient-fill",
-                    ) as HTMLElement;
-
-                  const white =
-                    e.currentTarget.querySelector(
-                      ".inner-white",
-                    ) as HTMLElement;
-
-                  gradient.style.opacity =
-                    "1";
-
-                  white.style.opacity =
-                    "0";
+                  const gradient = e.currentTarget.querySelector(
+                    ".gradient-fill",
+                  ) as HTMLElement;
+                  const white = e.currentTarget.querySelector(
+                    ".inner-white",
+                  ) as HTMLElement;
+                  gradient.style.opacity = "1";
+                  white.style.opacity = "0";
                 }}
                 onMouseLeave={(e) => {
-                  const gradient =
-                    e.currentTarget.querySelector(
-                      ".gradient-fill",
-                    ) as HTMLElement;
-
-                  const white =
-                    e.currentTarget.querySelector(
-                      ".inner-white",
-                    ) as HTMLElement;
-
-                  gradient.style.opacity =
-                    "0";
-
-                  white.style.opacity =
-                    "1";
+                  const gradient = e.currentTarget.querySelector(
+                    ".gradient-fill",
+                  ) as HTMLElement;
+                  const white = e.currentTarget.querySelector(
+                    ".inner-white",
+                  ) as HTMLElement;
+                  gradient.style.opacity = "0";
+                  white.style.opacity = "1";
                 }}
                 className="
                   relative
@@ -256,87 +158,49 @@ export default function Home() {
                   hover:scale-[1.03]
                 "
               >
-                {/* subtle glow */}
 
                 <div
-                  className="
-                    absolute
-                    inset-0
-                    rounded-full
-                  "
+                  className="absolute inset-0 rounded-full"
                   style={{
                     background:
                       "linear-gradient(90deg, rgba(255,182,193,1), rgba(186,230,253,1), rgba(221,214,254,1))",
-                    filter:
-                      "blur(18px)",
-                    transform:
-                      "scale(1.25)",
+                    filter: "blur(18px)",
+                    transform: "scale(1.25)",
                     opacity: 1,
                   }}
                 />
 
-                {/* gradient hover */}
-
                 <div
                   className="gradient-fill"
                   style={{
-                    position:
-                      "absolute",
+                    position: "absolute",
                     inset: 0,
-                    borderRadius:
-                      "999px",
+                    borderRadius: "999px",
                     background:
                       "linear-gradient(90deg, #ffb6c1, #bae6fd, #ddd6fe)",
                     opacity: 0,
-                    transition:
-                      "opacity 0.35s ease",
+                    transition: "opacity 0.35s ease",
                   }}
                 />
-
-                {/* white fill */}
 
                 <div
                   className="inner-white"
                   style={{
-                    position:
-                      "absolute",
+                    position: "absolute",
                     inset: "2px",
-                    borderRadius:
-                      "999px",
-                    background:
-                      "white",
-                    transition:
-                      "opacity 0.35s ease",
+                    borderRadius: "999px",
+                    background: "white",
+                    transition: "opacity 0.35s ease",
                   }}
                 />
 
-                {/* text */}
-
-                <span
-                  className="
-                    relative
-                    z-10
-                    flex
-                    items-center
-                    gap-3
-                  "
-                >
+                <span className="relative z-10 flex items-center gap-3">
                   note now
-
-                  <span
-                    className="
-                      text-[16px]
-                      opacity-70
-                    "
-                  >
-                    →
-                  </span>
+                  <span className="text-[16px] opacity-70">→</span>
                 </span>
               </button>
             </div>
           </div>
-
-          {/* right */}
 
           <div
             className="
@@ -346,11 +210,9 @@ export default function Home() {
               justify-center
               border-l
               border-black/5
-              bg-white/40
+              bg-white
             "
           >
-            {/* square grid */}
-
             <div
               className="
                 w-[88%]
@@ -362,103 +224,62 @@ export default function Home() {
                 overflow-hidden
               "
             >
-              {/* subtle dots */}
 
               <div
-                className="
-                  absolute
-                  inset-0
-                  opacity-[0.03]
-                "
+                className="absolute inset-0 opacity-[0.06]"
                 style={{
-                  backgroundImage:
-                    "radial-gradient(#000 1px, transparent 1px)",
-                  backgroundSize:
-                    "22px 22px",
+                  backgroundImage: "radial-gradient(#000 1px, transparent 1px)",
+                  backgroundSize: "22px 22px",
                 }}
               />
 
-              {/* grid */}
+              {/* grid — only render after client mount to avoid hydration mismatch */}
+              {mounted && (
+                <div
+                  className="
+                    relative
+                    z-10
+                    font-mono
+                    text-[17px]
+                    leading-[1.8]
+                    tracking-[7px]
+                    select-none
+                  "
+                >
+                  {grid.map((row, rowIndex) => (
+                    <div key={rowIndex} className="whitespace-nowrap">
+                      {row.map((char, colIndex) => {
+                        const isNoted =
+                          rowIndex === 5 && colIndex >= 5 && colIndex <= 9;
+                        const isThink =
+                          rowIndex === 10 && colIndex >= 3 && colIndex <= 7;
+                        const isVisually =
+                          rowIndex === 16 && colIndex >= 8 && colIndex <= 15;
+                        const isNoteit =
+                          rowIndex === 7 && colIndex >= 14 && colIndex <= 20;
 
-              <div
-                className="
-                  relative
-                  z-10
-                  font-mono
-                  text-[17px]
-                  leading-[1.8]
-                  tracking-[7px]
-                  select-none
-                "
-              >
-                {grid.map(
-                  (
-                    row,
-                    rowIndex,
-                  ) => (
-                    <div
-                      key={rowIndex}
-                      className="
-                        whitespace-nowrap
-                      "
-                    >
-                      {row.map(
-                        (
-                          char,
-                          colIndex,
-                        ) => {
-                          const isNoted =
-                            rowIndex ===
-                              5 &&
-                            colIndex >=
-                              5 &&
-                            colIndex <=
-                              9;
-
-                          const isThink =
-                            rowIndex ===
-                              10 &&
-                            colIndex >=
-                              3 &&
-                            colIndex <=
-                              7;
-
-                          const isVisually =
-                            rowIndex ===
-                              16 &&
-                            colIndex >=
-                              8 &&
-                            colIndex <=
-                              15;
-
-                          return (
-                            <span
-                              key={
-                                colIndex
-                              }
-                              className={
-                                isNoted ||
-                                isThink ||
-                                isVisually
-                                  ? "text-black font-semibold"
-                                  : "text-black/35"
-                              }
-                            >
-                              {char}
-                            </span>
-                          );
-                        },
-                      )}
+                        return (
+                          <span
+                            key={colIndex}
+                            className={
+                              isNoted || isThink || isVisually || isNoteit
+                                ? "text-black font-semibold"
+                                : "text-black/20"
+                            }
+                          >
+                            {char}
+                          </span>
+                        );
+                      })}
                     </div>
-                  ),
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* bottom */}
-
         <div
           className="
             h-[58px]
@@ -470,53 +291,16 @@ export default function Home() {
             text-black
           "
         >
-          <div
-            className="
-              flex
-              items-center
-              justify-center
-              gap-3
-              border-r
-              border-black/5
-            "
-          >
+          <div className="flex items-center justify-center gap-3 border-r border-black/5">
             • infinite workspace
           </div>
-
-          <div
-            className="
-              flex
-              items-center
-              justify-center
-              gap-3
-              border-r
-              border-black/5
-            "
-          >
+          <div className="flex items-center justify-center gap-3 border-r border-black/5">
             • spatial note-taking
           </div>
-
-          <div
-            className="
-              flex
-              items-center
-              justify-center
-              gap-3
-              border-r
-              border-black/5
-            "
-          >
+          <div className="flex items-center justify-center gap-3 border-r border-black/5">
             • cloud persistence
           </div>
-
-          <div
-            className="
-              flex
-              items-center
-              justify-center
-              gap-3
-            "
-          >
+          <div className="flex items-center justify-center gap-3">
             • fluid interactions
           </div>
         </div>
