@@ -1,7 +1,7 @@
 "use client";
 
-import { useBoardStore } from "../../store/board-store/board-store";
 import { useState, useEffect } from "react";
+import { useBoardStore } from "../../store/board-store/board-store";
 
 export default function StickyNote({ note = {} }) {
   const updateNotePosition = useBoardStore((s) => s.updateNotePosition);
@@ -13,14 +13,14 @@ export default function StickyNote({ note = {} }) {
   const toggleTodo = useBoardStore((s) => s.toggleTodo);
   const toggleNoteType = useBoardStore((s) => s.toggleNoteType);
   const togglePin = useBoardStore((s) => s.togglePin);
+  const updateTodoText = useBoardStore((s) => s.updateTodoText);
+  const clearPlaceholderNote = useBoardStore(
+    (s) => s.clearPlaceholderNote
+  );
 
   const [editing, setEditing] = useState(false);
   const [menu, setMenu] = useState(null);
-
-  // z-index
   const [zIndex, setZIndex] = useState(1);
-
-  // font size
   const [fontSize, setFontSize] = useState(note.fontSize || 16);
 
   useEffect(() => {
@@ -50,19 +50,45 @@ export default function StickyNote({ note = {} }) {
     setZIndex(highestZ);
   };
 
+  const startDragging = () => {
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "grabbing";
+  };
+
+  const stopDragging = () => {
+    document.body.style.userSelect = "";
+    document.body.style.cursor = "";
+  };
+
   const handleMouseDown = (e) => {
+    if (
+      e.target.closest("textarea") ||
+      e.target.closest("input") ||
+      e.target.closest("button")
+    ) {
+      return;
+    }
+
     bringToFront();
 
     if (note.pinned) return;
+
+    startDragging();
 
     const offsetX = e.clientX - (note.x || 0);
     const offsetY = e.clientY - (note.y || 0);
 
     const move = (e) => {
-      updateNotePosition(note.id, e.clientX - offsetX, e.clientY - offsetY);
+      updateNotePosition(
+        note.id,
+        e.clientX - offsetX,
+        e.clientY - offsetY
+      );
     };
 
     const up = () => {
+      stopDragging();
+
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mouseup", up);
     };
@@ -73,6 +99,8 @@ export default function StickyNote({ note = {} }) {
 
   const handleResizeMouseDown = (e) => {
     e.stopPropagation();
+
+    startDragging();
 
     const startX = e.clientX;
     const startY = e.clientY;
@@ -89,6 +117,8 @@ export default function StickyNote({ note = {} }) {
     };
 
     const up = () => {
+      stopDragging();
+
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mouseup", up);
     };
@@ -111,7 +141,6 @@ export default function StickyNote({ note = {} }) {
       <div
         className="sticky-note"
         onMouseDown={handleMouseDown}
-        onDoubleClick={() => setEditing(true)}
         onContextMenu={handleContextMenu}
         style={{
           position: "absolute",
@@ -121,16 +150,12 @@ export default function StickyNote({ note = {} }) {
           height: note.height || 220,
           borderRadius: "20px",
           background: note.color || "#fde68a",
-
-          // proper internal spacing
           padding: "52px 16px 16px 16px",
-
           opacity: note.pinned ? 0.9 : 1,
           border: note.pinned ? "2px solid #000" : "none",
           zIndex,
           cursor: note.pinned ? "default" : "grab",
           transition: "box-shadow 0.2s ease",
-
           boxShadow: `
             0 0 0 2px white,
             8px 10px 24px rgba(0,0,0,0.12),
@@ -138,7 +163,6 @@ export default function StickyNote({ note = {} }) {
           `,
         }}
       >
-        {/* top controls */}
         <div
           style={{
             position: "absolute",
@@ -150,7 +174,6 @@ export default function StickyNote({ note = {} }) {
             alignItems: "center",
           }}
         >
-          {/* font controls */}
           <div
             style={{
               display: "flex",
@@ -192,7 +215,6 @@ export default function StickyNote({ note = {} }) {
             </button>
           </div>
 
-          {/* color picker */}
           <div
             style={{
               position: "relative",
@@ -206,7 +228,9 @@ export default function StickyNote({ note = {} }) {
             <input
               type="color"
               value={note.color || "#fde68a"}
-              onChange={(e) => updateNoteColor(note.id, e.target.value)}
+              onChange={(e) =>
+                updateNoteColor(note.id, e.target.value)
+              }
               style={{
                 position: "absolute",
                 inset: 0,
@@ -217,7 +241,6 @@ export default function StickyNote({ note = {} }) {
           </div>
         </div>
 
-        {/* content */}
         <div
           style={{
             width: "100%",
@@ -250,7 +273,13 @@ export default function StickyNote({ note = {} }) {
               />
             ) : (
               <div
-                onClick={() => setEditing(true)}
+                onClick={() => {
+                  if (note.text === "new note") {
+                    clearPlaceholderNote(note.id);
+                  }
+
+                  setEditing(true);
+                }}
                 style={{
                   whiteSpace: "pre-wrap",
                   wordBreak: "break-word",
@@ -258,6 +287,7 @@ export default function StickyNote({ note = {} }) {
                   height: "100%",
                   fontSize: `${fontSize}px`,
                   color: "#222",
+                  cursor: "text",
                 }}
               >
                 {note.text}
@@ -268,40 +298,61 @@ export default function StickyNote({ note = {} }) {
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "10px",
+                gap: "12px",
                 overflowY: "auto",
               }}
             >
               {(note.todos || []).map((todo, index) => (
-                <label
+                <div
                   key={index}
                   style={{
                     display: "flex",
-                    alignItems: "center",
-                    gap: "10px",
-                    fontSize: `${fontSize}px`,
+                    alignItems: "flex-start",
+                    gap: "12px",
                   }}
                 >
                   <input
                     type="checkbox"
                     checked={todo.done}
-                    onChange={() => toggleTodo(note.id, index)}
+                    onChange={() =>
+                      toggleTodo(note.id, index)
+                    }
+                    style={{
+                      width: "20px",
+                      height: "20px",
+                      marginTop: "2px",
+                      cursor: "pointer",
+                      flexShrink: 0,
+                    }}
                   />
 
-                  <span
+                  <input
+                    type="text"
+                    value={todo.text}
+                    onChange={(e) =>
+                      updateTodoText(
+                        note.id,
+                        index,
+                        e.target.value
+                      )
+                    }
                     style={{
+                      flex: 1,
+                      border: "none",
+                      outline: "none",
+                      background: "transparent",
+                      fontSize: `${fontSize}px`,
                       textDecoration: todo.done
                         ? "line-through"
                         : "none",
+                      color: "#222",
                     }}
-                  >
-                    {todo.text}
-                  </span>
-                </label>
+                  />
+                </div>
               ))}
 
               <button
-                onClick={() => addTodo(note.id, "new todo")}
+                onClick={() => addTodo(note.id, "")}
                 style={{
                   border: "none",
                   borderRadius: "10px",
@@ -317,7 +368,6 @@ export default function StickyNote({ note = {} }) {
           )}
         </div>
 
-        {/* resize handle */}
         <div
           onMouseDown={handleResizeMouseDown}
           style={{
@@ -333,7 +383,6 @@ export default function StickyNote({ note = {} }) {
         />
       </div>
 
-      {/* context menu */}
       {menu && (
         <div
           style={{

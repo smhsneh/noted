@@ -4,7 +4,7 @@ import { connectDB } from "@/lib/mongodb";
 
 import OTP from "@/models/OTP";
 
-import { resend } from "@/lib/auth/resend";
+import { sendOTPEmail } from "@/lib/auth/resend";
 
 import {
   generateOTP,
@@ -61,30 +61,7 @@ export async function POST(req) {
       expiresAt,
     });
 
-    await resend.emails.send({
-      from: "onboarding@resend.dev",
-      to: email,
-      subject: "Your Noted OTP Code",
-      html: `
-        <div style="font-family:sans-serif;">
-          <h2>Your OTP Code</h2>
-          <p>Your verification code is:</p>
-
-          <div style="
-            font-size:32px;
-            font-weight:bold;
-            letter-spacing:4px;
-            margin:20px 0;
-          ">
-            ${otp}
-          </div>
-
-          <p>
-            This OTP expires in 2 minutes.
-          </p>
-        </div>
-      `,
-    });
+    await sendOTPEmail(email, otp);
 
     return NextResponse.json({
       success: true,

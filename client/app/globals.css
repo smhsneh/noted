@@ -32,3 +32,12 @@ body::before {
 .tool-btn:hover {
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
+
+.sticky-note {
+  touch-action: none;
+}
+
+img {
+  user-select: none;
+  -webkit-user-drag: none;
+}

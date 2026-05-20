@@ -15,11 +15,18 @@ export const useBoardStore = create((set, get) => ({
 
   hydrated: false,
 
+  authChecked: false,
+
   hydrate: async () => {
     if (typeof window === "undefined") return;
 
     try {
       const response = await fetch("/api/board");
+
+      if (response.status === 401) {
+        window.location.href = "/login";
+        return;
+      }
 
       if (response.ok) {
         const board = await response.json();
@@ -31,21 +38,35 @@ export const useBoardStore = create((set, get) => ({
           cameraY: board.cameraY ?? 0,
           zoom: board.zoom ?? 1,
           hydrated: true,
+          authChecked: true,
         });
 
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(board));
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify(board)
+        );
 
         return;
       }
     } catch (error) {
-      console.error("backend fetch failed", error);
+      console.error(
+        "backend fetch failed",
+        error
+      );
     }
 
     try {
-      const data = localStorage.getItem(STORAGE_KEY);
+      const data =
+        localStorage.getItem(
+          STORAGE_KEY
+        );
 
       if (!data) {
-        set({ hydrated: true });
+        set({
+          hydrated: true,
+          authChecked: true,
+        });
+
         return;
       }
 
@@ -53,21 +74,39 @@ export const useBoardStore = create((set, get) => ({
 
       set({
         notes: parsed.notes || [],
-        stickers: parsed.stickers || [],
-        cameraX: parsed.cameraX ?? 0,
-        cameraY: parsed.cameraY ?? 0,
+        stickers:
+          parsed.stickers || [],
+        cameraX:
+          parsed.cameraX ?? 0,
+        cameraY:
+          parsed.cameraY ?? 0,
         zoom: parsed.zoom ?? 1,
         hydrated: true,
+        authChecked: true,
       });
     } catch (e) {
-      console.error("local hydrate failed", e);
+      console.error(
+        "local hydrate failed",
+        e
+      );
 
-      set({ hydrated: true });
+      set({
+        hydrated: true,
+        authChecked: true,
+      });
     }
   },
 
-  setCamera: (x, y) => set({ cameraX: x, cameraY: y }),
-  setZoom: (z) => set({ zoom: z }),
+  setCamera: (x, y) =>
+    set({
+      cameraX: x,
+      cameraY: y,
+    }),
+
+  setZoom: (z) =>
+    set({
+      zoom: z,
+    }),
 
   addNote: () =>
     set((state) => ({
@@ -82,10 +121,16 @@ export const useBoardStore = create((set, get) => ({
 
           todos: [],
 
-          x: 200 + state.notes.length * 30,
-          y: 200 + state.notes.length * 30,
+          x:
+            200 +
+            state.notes.length * 30,
+
+          y:
+            200 +
+            state.notes.length * 30,
 
           width: 200,
+
           height: 220,
 
           color: "#fde68a",
@@ -97,93 +142,231 @@ export const useBoardStore = create((set, get) => ({
       ],
     })),
 
-  updateNotePosition: (id, x, y) =>
+  updateNotePosition: (
+    id,
+    x,
+    y
+  ) =>
     set((state) => ({
-      notes: state.notes.map((note) =>
-        note.id === id ? { ...note, x, y } : note
+      notes: state.notes.map(
+        (note) =>
+          note.id === id
+            ? {
+                ...note,
+                x,
+                y,
+              }
+            : note
       ),
     })),
 
-  updateNoteText: (id, text) =>
+  updateNoteText: (
+    id,
+    text
+  ) =>
     set((state) => ({
-      notes: state.notes.map((note) =>
-        note.id === id ? { ...note, text } : note
+      notes: state.notes.map(
+        (note) =>
+          note.id === id
+            ? {
+                ...note,
+                text,
+              }
+            : note
       ),
     })),
 
-  updateNoteColor: (id, color) =>
+  updateTodoText: (
+    id,
+    index,
+    text
+  ) =>
     set((state) => ({
-      notes: state.notes.map((note) =>
-        note.id === id ? { ...note, color } : note
+      notes: state.notes.map(
+        (note) =>
+          note.id === id
+            ? {
+                ...note,
+                todos:
+                  note.todos.map(
+                    (
+                      todo,
+                      i
+                    ) =>
+                      i === index
+                        ? {
+                            ...todo,
+                            text,
+                          }
+                        : todo
+                  ),
+              }
+            : note
       ),
     })),
 
-  updateFontSize: (id, fontSize) =>
+  clearPlaceholderNote: (
+    id
+  ) =>
     set((state) => ({
-      notes: state.notes.map((note) =>
-        note.id === id ? { ...note, fontSize } : note
+      notes: state.notes.map(
+        (note) =>
+          note.id === id &&
+          note.text === "new note"
+            ? {
+                ...note,
+                text: "",
+              }
+            : note
+      ),
+    })),
+
+  updateNoteColor: (
+    id,
+    color
+  ) =>
+    set((state) => ({
+      notes: state.notes.map(
+        (note) =>
+          note.id === id
+            ? {
+                ...note,
+                color,
+              }
+            : note
+      ),
+    })),
+
+  updateFontSize: (
+    id,
+    fontSize
+  ) =>
+    set((state) => ({
+      notes: state.notes.map(
+        (note) =>
+          note.id === id
+            ? {
+                ...note,
+                fontSize,
+              }
+            : note
       ),
     })),
 
   deleteNote: (id) =>
     set((state) => ({
-      notes: state.notes.filter((note) => note.id !== id),
+      notes:
+        state.notes.filter(
+          (note) =>
+            note.id !== id
+        ),
     })),
 
   deleteSticker: (id) =>
     set((state) => ({
-      stickers: state.stickers.filter((s) => s.id !== id),
+      stickers:
+        state.stickers.filter(
+          (s) => s.id !== id
+        ),
     })),
 
-  addTodo: (id, text) =>
+  addTodo: (
+    id,
+    text = ""
+  ) =>
     set((state) => ({
-      notes: state.notes.map((note) =>
-        note.id === id
-          ? {
-              ...note,
-              todos: [...note.todos, { text, done: false }],
-            }
-          : note
+      notes: state.notes.map(
+        (note) =>
+          note.id === id
+            ? {
+                ...note,
+                todos: [
+                  ...note.todos,
+                  {
+                    text,
+                    done: false,
+                  },
+                ],
+              }
+            : note
       ),
     })),
 
-  toggleTodo: (id, index) =>
+  toggleTodo: (
+    id,
+    index
+  ) =>
     set((state) => ({
-      notes: state.notes.map((note) =>
-        note.id === id
-          ? {
-              ...note,
-              todos: note.todos.map((todo, i) =>
-                i === index ? { ...todo, done: !todo.done } : todo
-              ),
-            }
-          : note
+      notes: state.notes.map(
+        (note) =>
+          note.id === id
+            ? {
+                ...note,
+                todos:
+                  note.todos.map(
+                    (
+                      todo,
+                      i
+                    ) =>
+                      i === index
+                        ? {
+                            ...todo,
+                            done:
+                              !todo.done,
+                          }
+                        : todo
+                  ),
+              }
+            : note
       ),
     })),
 
   toggleNoteType: (id) =>
     set((state) => ({
-      notes: state.notes.map((note) =>
-        note.id === id
-          ? {
-              ...note,
-              type: note.type === "text" ? "todo" : "text",
-            }
-          : note
+      notes: state.notes.map(
+        (note) =>
+          note.id === id
+            ? {
+                ...note,
+                type:
+                  note.type ===
+                  "text"
+                    ? "todo"
+                    : "text",
+              }
+            : note
       ),
     })),
 
-  updateNoteSize: (id, width, height) =>
+  updateNoteSize: (
+    id,
+    width,
+    height
+  ) =>
     set((state) => ({
-      notes: state.notes.map((note) =>
-        note.id === id ? { ...note, width, height } : note
+      notes: state.notes.map(
+        (note) =>
+          note.id === id
+            ? {
+                ...note,
+                width,
+                height,
+              }
+            : note
       ),
     })),
 
   togglePin: (id) =>
     set((state) => ({
-      notes: state.notes.map((note) =>
-        note.id === id ? { ...note, pinned: !note.pinned } : note
+      notes: state.notes.map(
+        (note) =>
+          note.id === id
+            ? {
+                ...note,
+                pinned:
+                  !note.pinned,
+              }
+            : note
       ),
     })),
 
@@ -193,60 +376,116 @@ export const useBoardStore = create((set, get) => ({
         ...state.stickers,
         {
           id: Date.now(),
+
           x: 300,
+
           y: 200,
+
           width: 100,
+
           height: 100,
+
           src,
         },
       ],
     })),
 
-  updateStickerPosition: (id, x, y) =>
+  updateStickerPosition: (
+    id,
+    x,
+    y
+  ) =>
     set((state) => ({
-      stickers: state.stickers.map((s) =>
-        s.id === id ? { ...s, x, y } : s
-      ),
+      stickers:
+        state.stickers.map((s) =>
+          s.id === id
+            ? {
+                ...s,
+                x,
+                y,
+              }
+            : s
+        ),
     })),
 
-  updateStickerSize: (id, width, height) =>
+  updateStickerSize: (
+    id,
+    width,
+    height
+  ) =>
     set((state) => ({
-      stickers: state.stickers.map((s) =>
-        s.id === id ? { ...s, width, height } : s
-      ),
+      stickers:
+        state.stickers.map((s) =>
+          s.id === id
+            ? {
+                ...s,
+                width,
+                height,
+              }
+            : s
+        ),
     })),
 }));
 
 let saveTimeout;
 
 useBoardStore.subscribe((state) => {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined")
+    return;
 
   if (!state.hydrated) return;
 
   clearTimeout(saveTimeout);
 
-  saveTimeout = setTimeout(async () => {
-    const data = {
-      notes: state.notes,
-      stickers: state.stickers,
-      cameraX: state.cameraX,
-      cameraY: state.cameraY,
-      zoom: state.zoom,
-    };
+  saveTimeout = setTimeout(
+    async () => {
+      const data = {
+        notes: state.notes,
+        stickers:
+          state.stickers,
+        cameraX:
+          state.cameraX,
+        cameraY:
+          state.cameraY,
+        zoom: state.zoom,
+      };
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(data)
+      );
 
-    try {
-      await fetch("/api/board", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-    } catch (error) {
-      console.error("cloud save failed", error);
-    }
-  }, 500);
+      try {
+        const response =
+          await fetch(
+            "/api/board",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+
+              body: JSON.stringify(
+                data
+              ),
+            }
+          );
+
+        if (
+          response.status === 401
+        ) {
+          window.location.href =
+            "/login";
+        }
+      } catch (error) {
+        console.error(
+          "cloud save failed",
+          error
+        );
+      }
+    },
+    1000
+  );
 });

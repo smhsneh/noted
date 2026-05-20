@@ -19,6 +19,9 @@ export default function Canvas() {
   const handleMouseDown = (e) => {
     if (e.target !== e.currentTarget) return;
 
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "grabbing";
+
     const startX = e.clientX;
     const startY = e.clientY;
 
@@ -29,37 +32,75 @@ export default function Canvas() {
       const dx = e.clientX - startX;
       const dy = e.clientY - startY;
 
-      setCamera(initialX - dx / zoom, initialY - dy / zoom);
+      setCamera(
+        initialX - dx / zoom,
+        initialY - dy / zoom
+      );
     };
 
     const handleMouseUp = () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.userSelect = "";
+      document.body.style.cursor = "";
+
+      window.removeEventListener(
+        "mousemove",
+        handleMouseMove
+      );
+
+      window.removeEventListener(
+        "mouseup",
+        handleMouseUp
+      );
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener(
+      "mousemove",
+      handleMouseMove
+    );
+
+    window.addEventListener(
+      "mouseup",
+      handleMouseUp
+    );
   };
 
   const handleWheel = (e) => {
     e.preventDefault();
 
-    const rect = e.currentTarget.getBoundingClientRect();
+    const rect =
+      e.currentTarget.getBoundingClientRect();
 
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    const mouseX =
+      e.clientX - rect.left;
 
-    const worldX = cameraX + mouseX / zoom;
-    const worldY = cameraY + mouseY / zoom;
+    const mouseY =
+      e.clientY - rect.top;
 
-    let newZoom = zoom - e.deltaY * 0.001;
-    newZoom = Math.max(0.3, Math.min(3, newZoom));
+    const worldX =
+      cameraX + mouseX / zoom;
 
-    const newCameraX = worldX - mouseX / newZoom;
-    const newCameraY = worldY - mouseY / newZoom;
+    const worldY =
+      cameraY + mouseY / zoom;
+
+    let newZoom =
+      zoom - e.deltaY * 0.001;
+
+    newZoom = Math.max(
+      0.3,
+      Math.min(3, newZoom)
+    );
+
+    const newCameraX =
+      worldX - mouseX / newZoom;
+
+    const newCameraY =
+      worldY - mouseY / newZoom;
 
     setZoom(newZoom);
-    setCamera(newCameraX, newCameraY);
+    setCamera(
+      newCameraX,
+      newCameraY
+    );
   };
 
   return (
@@ -75,7 +116,6 @@ export default function Canvas() {
         overflow: "hidden",
       }}
     >
-      {}
       <div
         style={{
           width: "100%",
@@ -85,15 +125,22 @@ export default function Canvas() {
             translate(${-cameraX * zoom}px, ${-cameraY * zoom}px)
             scale(${zoom})
           `,
-          transformOrigin: "top left",
+          transformOrigin:
+            "top left",
         }}
       >
         {notes.map((note) => (
-          <StickyNote key={note.id} note={note} />
+          <StickyNote
+            key={note.id}
+            note={note}
+          />
         ))}
 
         {stickers.map((sticker) => (
-          <Sticker key={sticker.id} sticker={sticker} />
+          <Sticker
+            key={sticker.id}
+            sticker={sticker}
+          />
         ))}
       </div>
     </div>
