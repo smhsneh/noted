@@ -1,33 +1,36 @@
 # noted
 
-noted is a full-stack infinite canvas productivity application that combines spatial note-taking with real-time cloud persistence and custom otp authentication. unlike traditional note-taking apps that rely on fixed layouts or document-style organization, noted allows users to freely create, drag, resize, and organize notes visually on an infinite workspace. the platform features autosave, personalized cloud boards, secure session-based authentication, interactive todo systems, stickers, zoom/pan navigation, and production-grade interaction handling built completely from scratch using next.js, zustand, mongodb atlas, and custom backend infrastructure.
+noted is a full-stack infinite canvas productivity application designed for visual note-taking, brainstorming, and task management. unlike traditional note-taking applications that rely on fixed layouts or document-based structures, noted provides a flexible workspace where users can freely create, drag, resize, and organize notes on an infinite canvas.
 
-live app:
+the platform features autosave, cloud persistence, interactive todo notes, stickers, zoom and pan navigation, secure authentication, and a smooth user experience built from scratch using the mern stack.
+
+## live app
+
 https://notedbysneh.vercel.app
 
 ---
 
 ## features
 
-- infinite spatial canvas
-- pan and zoom system
+- infinite canvas workspace
+- smooth pan and zoom navigation
 - draggable sticky notes
 - resizable notes
 - todo note system
 - editable todo items
-- sticker system
+- sticker support
 - note pinning
 - color customization
 - font size controls
 - context menus
-- z-index interaction system
-- autosave
+- layered note interactions
+- autosave functionality
 - local persistence fallback
 - cloud persistence
-- otp authentication
-- secure session cookies
+- otp-based authentication
+- secure session management
 - protected routes
-- user-specific workspaces
+- personalized user workspaces
 
 ---
 
@@ -35,23 +38,25 @@ https://notedbysneh.vercel.app
 
 ### frontend
 
-- next.js app router
 - react
-- zustand
+- javascript
+- html
+- css
 - tailwind css
 
 ### backend
 
-- next.js api routes
+- node.js
+- express.js
 - mongodb atlas
 - mongoose
 
 ### authentication
 
 - custom otp authentication
-- brevo transactional email api
-- bcrypt hashing
-- secure httpOnly sessions
+- brevo email api
+- bcrypt
+- secure cookies
 
 ### deployment
 
@@ -61,107 +66,114 @@ https://notedbysneh.vercel.app
 
 ## architecture
 
-```
-frontend ui
-    ↓
-zustand state management
-    ↓
-next.js api routes
-    ↓
+### application flow
+
+```text
+user
+   ↓
+react frontend
+   ↓
+application state
+   ↓
+express api
+   ↓
 mongodb atlas
-    ↓
-brevo email delivery
 ```
 
-authentication flow
+### board persistence flow
 
+```text
+create / edit note
+        ↓
+application state updated
+        ↓
+debounced autosave
+        ↓
+api request
+        ↓
+mongodb atlas
 ```
-user enters email
+
+### authentication flow
+
+```text
+email entered
       ↓
 otp generated
       ↓
-otp hashed with bcrypt
+otp sent to user
       ↓
-otp emailed using brevo
-      ↓
-otp verification
+verification
       ↓
 session created
       ↓
-httpOnly cookie stored
-      ↓
-authenticated workspace
+personal workspace loaded
 ```
 
-persistence flow
+### guest fallback
 
-```
-zustand state
+```text
+application state
       ↓
-debounced autosave
-      ↓
-api routes
-      ↓
-mongodb atlas
-```
-
-fallback persistence:
-
-```
-localstorage backup
+local storage
 ```
 
 ---
 
 ## project highlights
 
-- built custom infinite canvas interaction system
-- implemented full otp authentication architecture
-- designed secure session handling using cookies
-- implemented backend hydration and autosave flow
-- created production-grade interaction polish
-- deployed fully working multi-user cloud application
+- built a custom infinite canvas interaction system from scratch
+- implemented drag, resize, zoom, pan, and note organization features
+- developed secure otp-based authentication and session management
+- implemented autosave with cloud persistence and local backup
+- designed interactive todo notes, stickers, pinning, and workspace customization
+- deployed a fully functional full-stack web application
 
 ---
 
 ## local setup
 
+### clone the repository
+
 ```bash
-git clone <your_repo_url> && cd noted && npm install && touch .env.local && echo "MONGODB_URI=\nBREVO_API_KEY=\nSESSION_SECRET=\nCOOKIE_SECRET=" >> .env.local && npm run dev
+git clone <your_repo_url>
+cd noted
 ```
 
-fill in the values in `.env.local` before running the dev server:
+### install dependencies
+
+```bash
+npm install
+```
+
+### configure environment variables
+
+create a `.env` file and add:
 
 ```env
-MONGODB_URI=
-BREVO_API_KEY=
-SESSION_SECRET=
-COOKIE_SECRET=
+mongodb_uri=
+brevo_api_key=
+```
+
+### start the development server
+
+```bash
+npm run dev
 ```
 
 ---
 
 ## future improvements
 
-- realtime collaboration
-- multiplayer cursors
-- markdown support
-- board sharing
+- board sharing through links
+- image uploads inside notes
 - keyboard shortcuts
-- image uploads
-- pwa support
-- export/import support
+- note connections and relationships
+- export and import support
+- mobile optimization
+- dark mode
+- offline support
 
 ---
 
-## final status
-
-noted is a fully deployed production-ready web application featuring:
-
-- custom authentication
-- cloud persistence
-- infinite canvas interactions
-- secure backend architecture
-- multi-user personalized workspaces
-
-made by smhsneh.
+made by smhsneh
