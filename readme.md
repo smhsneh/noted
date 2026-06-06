@@ -1,169 +1,139 @@
+<div align="center">
+
+<br/>
+
 # noted
 
-noted is a full-stack infinite canvas productivity application designed for visual note-taking, brainstorming, and task management. unlike traditional note-taking applications that rely on fixed layouts or document-based structures, noted provides a flexible workspace where users can freely create, drag, resize, and organize notes on an infinite canvas.
+**infinite canvas · cloud persistence · visual-first**
 
-the platform features autosave, cloud persistence, interactive todo notes, stickers, zoom and pan navigation, secure authentication, and a smooth user experience built from scratch using the mern stack.
+*a full-stack infinite canvas productivity application for visual note-taking, brainstorming, and task management — built from scratch on the mern stack.*
 
-## live app
+<br/>
 
-https://notedbysneh.vercel.app
+![react](https://img.shields.io/badge/React-20232a?style=flat-square&logo=react&logoColor=61dafb)
+![nodejs](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white)
+![tailwindcss](https://img.shields.io/badge/TailwindCSS-0f172a?style=flat-square&logo=tailwindcss&logoColor=38bdf8)
+![vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white)
+![mongodb](https://img.shields.io/badge/MongoDB-47a248?style=flat-square&logo=mongodb&logoColor=white)
+
+<br/>
+
+**[live app](https://notedbysneh.vercel.app)**
+
+</div>
+
+---
+
+## overview
+
+**noted** is a full-stack infinite canvas productivity application designed for visual note-taking, brainstorming, and task management. unlike traditional note-taking apps that rely on fixed layouts or document-based structures, noted provides a flexible workspace where users can freely create, drag, resize, and organize notes without constraint.
+
+the platform features autosave, cloud persistence, interactive todo notes, stickers, zoom and pan navigation, and secure otp-based authentication — all built from scratch using the mern stack.
 
 ---
 
 ## features
 
-- infinite canvas workspace
-- smooth pan and zoom navigation
-- draggable sticky notes
-- resizable notes
-- todo note system
-- editable todo items
-- sticker support
-- note pinning
-- color customization
+### canvas
+- infinite workspace with smooth pan and zoom navigation
+- draggable, resizable sticky notes
+- layered note interactions with context menus
+- note pinning and color customization
 - font size controls
-- context menus
-- layered note interactions
-- autosave functionality
-- local persistence fallback
-- cloud persistence
-- otp-based authentication
-- secure session management
+
+### notes & content
+- todo note system with editable todo items
+- sticker support
+- per-user personalized workspaces
+
+### persistence
+- autosave with debounced cloud sync
+- local storage fallback for guest sessions
+- full cloud persistence via mongodb atlas
+
+### authentication
+- otp-based email authentication via brevo
+- secure session management with cookies
 - protected routes
-- personalized user workspaces
 
 ---
 
 ## tech stack
 
-### frontend
-
-- react
-- javascript
-- html
-- css
-- tailwind css
-
-### backend
-
-- node.js
-- express.js
-- mongodb atlas
-- mongoose
-
-### authentication
-
-- custom otp authentication
-- brevo email api
-- bcrypt
-- secure cookies
-
-### deployment
-
-- vercel
+```
+react + tailwind css ────── frontend
+node.js + express ───────── backend api
+mongodb atlas + mongoose ─── database and odm
+bcrypt + secure cookies ──── session and password handling
+brevo email api ─────────── otp delivery
+vercel ──────────────────── deployment
+```
 
 ---
 
 ## architecture
 
 ### application flow
-
 ```text
-user
-   ↓
-react frontend
-   ↓
-application state
-   ↓
-express api
-   ↓
-mongodb atlas
+user → react frontend → application state → express api → mongodb atlas
 ```
 
 ### board persistence flow
-
 ```text
-create / edit note
-        ↓
-application state updated
-        ↓
-debounced autosave
-        ↓
-api request
-        ↓
-mongodb atlas
+create / edit note → application state updated → debounced autosave → api request → mongodb atlas
 ```
 
 ### authentication flow
-
 ```text
-email entered
-      ↓
-otp generated
-      ↓
-otp sent to user
-      ↓
-verification
-      ↓
-session created
-      ↓
-personal workspace loaded
+email entered → otp generated → otp sent → verification → session created → workspace loaded
 ```
 
 ### guest fallback
-
 ```text
-application state
-      ↓
-local storage
+application state → local storage
 ```
 
 ---
 
 ## project highlights
 
-- built a custom infinite canvas interaction system from scratch
-- implemented drag, resize, zoom, pan, and note organization features
+- built a custom infinite canvas interaction system entirely from scratch
+- implemented drag, resize, zoom, pan, and note organization without any canvas libraries
 - developed secure otp-based authentication and session management
-- implemented autosave with cloud persistence and local backup
-- designed interactive todo notes, stickers, pinning, and workspace customization
-- deployed a fully functional full-stack web application
+- autosave with cloud persistence and local storage backup
+- interactive todo notes, stickers, pinning, and workspace customization
 
 ---
 
 ## local setup
 
-### clone the repository
-
+### 1. clone the repository
 ```bash
 git clone <your_repo_url>
 cd noted
 ```
 
-### install dependencies
-
+### 2. install dependencies
 ```bash
 npm install
 ```
 
-### configure environment variables
+### 3. configure environment variables
 
 create a `.env` file and add:
-
 ```env
-mongodb_uri=
-brevo_api_key=
+MONGODB_URI=
+BREVO_API_KEY=
 ```
 
-### start the development server
-
+### 4. start the development server
 ```bash
 npm run dev
 ```
 
 ---
 
-## future improvements
+## future scope
 
 - board sharing through links
 - image uploads inside notes
@@ -176,4 +146,6 @@ npm run dev
 
 ---
 
-made by smhsneh
+## made by
+
+> **smhsneh** — designed and developed noted as a full-stack productivity application focused on building a flexible, visual-first workspace experience.
